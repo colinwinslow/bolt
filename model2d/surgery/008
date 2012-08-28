@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 LOCATION-PHRASE < (ADVP=advp1 [ <1 ADVP=advp2 & <2 PP=pp ] )
 
 excise advp1 advp1
 move advp2 >1 pp
 excise advp2 advp2
+=======
+% remove ADVP that is a direct descendant of LOCATION-PHRASE
+LOCATION-PHRASE < (ADVP=advp <-1 PP=pp)
+
+excise pp pp
+relabel advp PP
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef

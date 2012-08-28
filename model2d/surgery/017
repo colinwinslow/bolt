@@ -1,3 +1,11 @@
+<<<<<<< HEAD
 LANDMARK-PHRASE=lmk !< LANDMARK
 
 adjoin (LANDMARK-PHRASE LANDMARK@) lmk
+=======
+PP=rel [ > LOCATION-PHRASE=loc & <-1 NP=lmk ]
+
+relabel rel RELATION
+move lmk >-1 loc
+relabel lmk LANDMARK-PHRASE
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef

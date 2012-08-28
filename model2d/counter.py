@@ -6,10 +6,15 @@ from __future__ import division
 import csv
 
 from models import (Location, Word, Production, Bigram, Trigram,
+<<<<<<< HEAD
                     CWord, CProduction, session)
 from utils import parent_landmark, count_lmk_phrases, get_meaning, rel_type, lmk_id
 
 from table2d.landmark import Landmark
+=======
+                    CWord, CProduction, SentenceParse, session)
+from utils import parent_landmark, count_lmk_phrases, get_meaning, rel_type, lmk_id, get_lmk_ori_rels_str
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 from nltk.tree import ParentedTree
 
@@ -44,6 +49,11 @@ def save_tree(tree, loc, rel, lmk, parent=None):
         elif prod.lhs == 'LANDMARK-PHRASE':
             prod.landmark = lmk_id(lmk)
             prod.landmark_class = lmk.object_class
+<<<<<<< HEAD
+=======
+            prod.landmark_orientation_relations = get_lmk_ori_rels_str(lmk)
+            prod.landmark_color = lmk.color
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
             # next landmark phrase will need the parent landmark
             lmk = parent_landmark(lmk)
 
@@ -51,13 +61,21 @@ def save_tree(tree, loc, rel, lmk, parent=None):
             # LANDMARK has the same landmark as its parent LANDMARK-PHRASE
             prod.landmark = parent.landmark
             prod.landmark_class = parent.landmark_class
+<<<<<<< HEAD
+=======
+            prod.landmark_orientation_relations = parent.landmark_orientation_relations
+            prod.landmark_color = parent.landmark_color
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
         # save subtrees, keeping track of parent
         for subtree in tree:
             save_tree(subtree, loc, rel, lmk, prod)
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -69,11 +87,20 @@ if __name__ == '__main__':
     reader = csv.reader(args.csvfile, lineterminator='\n')
     next(reader)  # skip headers
 
+<<<<<<< HEAD
+=======
+    unique_sentences = {}
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     for i,row in enumerate(reader, start=1):
         print 'sentence', i
 
         # unpack row
         xloc, yloc, sentence, parse, modparse = row
+<<<<<<< HEAD
+=======
+        unique_sentences[sentence] = (parse, modparse)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
         # convert variables to the right types
         xloc = float(xloc)
@@ -85,12 +112,25 @@ if __name__ == '__main__':
         # how many ancestors should the sampled landmark have?
         num_ancestors = count_lmk_phrases(modparse) - 1
 
+<<<<<<< HEAD
+=======
+        if num_ancestors == -1:
+            print 'Failed to parse %d [%s] [%s] [%s]' % (i, sentence, parse, modparse)
+            continue
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
         # sample `args.iterations` times for each sentence
         for _ in xrange(args.iterations):
             lmk, rel = get_meaning(loc, num_ancestors)
             lmk, _, _ = lmk
             rel, _, _ = rel
 
+<<<<<<< HEAD
+=======
+            assert(not isinstance(lmk, tuple))
+            assert(not isinstance(rel, tuple))
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
             if args.verbose:
                 print 'utterance:', repr(sentence)
                 print 'location: %s' % repr(loc)
@@ -106,19 +146,37 @@ if __name__ == '__main__':
             save_tree(modparse, location, rel, lmk)
             Bigram.make_bigrams(location.words)
             Trigram.make_trigrams(location.words)
+<<<<<<< HEAD
             session.commit()
 
 
+=======
+
+        if i % 200 == 0: session.commit()
+
+    for sentence,(parse,modparse) in unique_sentences.items():
+        SentenceParse.add_sentence_parse_blind(sentence, parse, modparse)
+
+    session.commit()
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
     # count words
     parent = aliased(Production)
     qry = session.query(Word.word, Word.pos,
+<<<<<<< HEAD
                         parent.landmark, parent.landmark_class,
+=======
+                        parent.landmark, parent.landmark_class, parent.landmark_orientation_relations, parent.landmark_color,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                         parent.relation, parent.relation_distance_class,
                         parent.relation_degree_class, func.count(Word.id)).\
                   join(parent, Word.parent).\
                   group_by(Word.word, Word.pos,
+<<<<<<< HEAD
                            parent.landmark, parent.landmark_class,
+=======
+                           parent.landmark, parent.landmark_class, parent.landmark_orientation_relations,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                            parent.relation, parent.relation_distance_class,
                            parent.relation_degree_class)
     for row in qry:
@@ -126,20 +184,37 @@ if __name__ == '__main__':
                    pos=row[1],
                    landmark=row[2],
                    landmark_class=row[3],
+<<<<<<< HEAD
                    relation=row[4],
                    relation_distance_class=row[5],
                    relation_degree_class=row[6],
                    count=row[7])
+=======
+                   landmark_orientation_relations=row[4],
+                   landmark_color=row[5],
+                   relation=row[6],
+                   relation_distance_class=row[7],
+                   relation_degree_class=row[8],
+                   count=row[9])
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
     # count productions with no parent
     parent = aliased(Production)
     qry = session.query(Production.lhs, Production.rhs,
+<<<<<<< HEAD
                         Production.landmark, Production.landmark_class,
+=======
+                        Production.landmark, Production.landmark_class, Production.landmark_orientation_relations, Production.landmark_color,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                         Production.relation, Production.relation_distance_class,
                         Production.relation_degree_class, func.count(Production.id)).\
                   filter_by(parent=None).\
                   group_by(Production.lhs, Production.rhs,
+<<<<<<< HEAD
                            Production.landmark, Production.landmark_class,
+=======
+                           Production.landmark, Production.landmark_class, Production.landmark_orientation_relations,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                            Production.relation, Production.relation_distance_class,
                            Production.relation_degree_class)
     for row in qry:
@@ -147,20 +222,37 @@ if __name__ == '__main__':
                          rhs=row[1],
                          landmark=row[2],
                          landmark_class=row[3],
+<<<<<<< HEAD
                          relation=row[4],
                          relation_distance_class=row[5],
                          relation_degree_class=row[6],
                          count=row[7])
+=======
+                         landmark_orientation_relations=row[4],
+                         landmark_color=row[5],
+                         relation=row[6],
+                         relation_distance_class=row[7],
+                         relation_degree_class=row[8],
+                         count=row[9])
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
     # count productions with parent
     parent = aliased(Production)
     qry = session.query(Production.lhs, Production.rhs,
+<<<<<<< HEAD
                         parent.lhs, Production.landmark, Production.landmark_class,
+=======
+                        parent.lhs, Production.landmark, Production.landmark_class, Production.landmark_orientation_relations, Production.landmark_color,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                         Production.relation, Production.relation_distance_class,
                         Production.relation_degree_class, func.count(Production.id)).\
                   join(parent, Production.parent).\
                   group_by(Production.lhs, Production.rhs,
+<<<<<<< HEAD
                            parent.lhs, Production.landmark, Production.landmark_class,
+=======
+                           parent.lhs, Production.landmark, Production.landmark_class, Production.landmark_orientation_relations,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                            Production.relation, Production.relation_distance_class,
                            Production.relation_degree_class)
     for row in qry:
@@ -169,9 +261,18 @@ if __name__ == '__main__':
                          parent=row[2],
                          landmark=row[3],
                          landmark_class=row[4],
+<<<<<<< HEAD
                          relation=row[5],
                          relation_distance_class=row[6],
                          relation_degree_class=row[7],
                          count=row[8])
+=======
+                         landmark_orientation_relations=row[5],
+                         landmark_color=row[6],
+                         relation=row[7],
+                         relation_distance_class=row[8],
+                         relation_degree_class=row[9],
+                         count=row[10])
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
     session.commit()

@@ -1,3 +1,10 @@
+<<<<<<< HEAD
 LOCATION-PHRASE < (RB=rb $+ PP=pp)
 
 move rb >1 pp
+=======
+NP [ <1 NP & <2 (PP <-1 NP=np) & <3 PP=pp ]
+
+adjoinF (NP @) np
+move pp $- np
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
