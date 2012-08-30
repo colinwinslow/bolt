@@ -3,4 +3,12 @@
 .ropeproject
 *.sublime-workspace
 *.sublime-project
+<<<<<<< HEAD
 .DS_Store
+=======
+stanford-tregex/
+.DS_Store
+.project
+.pydevproject
+tags
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef

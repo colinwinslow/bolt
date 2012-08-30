@@ -9,6 +9,11 @@ import glob
 import tempfile
 import fileinput
 import subprocess
+<<<<<<< HEAD
+=======
+from models import SentenceParse
+from sqlalchemy.orm.exc import NoResultFound
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 
 
@@ -20,6 +25,7 @@ def parse_sentences(ss, parser_path='../bllip-parser'):
         temp.write('<s> %s </s>\n' % s)
     temp.flush()
     # where am i?
+<<<<<<< HEAD
     prev_path = os.getcwd()
     # get into the charniak parser directory
     os.chdir(parser_path)
@@ -35,6 +41,19 @@ def parse_sentences(ss, parser_path='../bllip-parser'):
     output = proc.communicate()[0]
     # return to where i was
     os.chdir(prev_path)
+=======
+    # prev_path = os.getcwd()
+    # get into the charniak parser directory
+    # os.chdir(parser_path)
+    # call the parser
+    proc = subprocess.Popen(['./parse.sh', temp.name],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    # capture output
+    output = proc.communicate()[0]
+    # return to where i was
+    # os.chdir(prev_path)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     # get rid of temporary file
     temp.close()
     # return the parse trees
@@ -74,7 +93,11 @@ def parse_generator_data(datafile):
     xlocs, ylocs, sentences = [], [], []
     # this is how each observation looks like
     # for example: Vec2(5.31, 5.11); on the table
+<<<<<<< HEAD
     pattern = r'^Vec2\((?P<x>[0-9.]+), (?P<y>[0-9.]+)\); (?P<sent>.+)$'
+=======
+    pattern = r'^Vec2\((?P<x>-?[0-9.]+), (?P<y>-?[0-9.]+)\); (?P<sent>.+)$'
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     for line in datafile:
         match = re.match(pattern, line)
         if match:
@@ -87,11 +110,27 @@ def parse_generator_data(datafile):
 
 def get_modparse(sentence):
     """returns the modified parse tree for a sentence"""
+<<<<<<< HEAD
     parsetree = parse_sentences([sentence])[0]
     modparsetree = modify_parses([parsetree])[0]
     return modparsetree
 
     
+=======
+    sp_db = SentenceParse.get_sentence_parse(sentence)
+
+    try:
+        res = sp_db.one()
+        modparsetree = res.modified_parse
+    except NoResultFound:
+        parsetree = parse_sentences([sentence])[0]
+        modparsetree = modify_parses([parsetree])[0]
+        SentenceParse.add_sentence_parse(sentence, parsetree, modparsetree)
+
+    return modparsetree
+
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 if __name__ == '__main__':
     # parse data from file or stdin

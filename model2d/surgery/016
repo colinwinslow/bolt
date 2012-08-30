@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 LANDMARK-PHRASE < (NP=lmk $+ (PP=pp < ((IN=of < of) $+ NP=obj)))
 
 relabel lmk LANDMARK
 relabel of OF
 relabel obj LANDMARK-PHRASE
+=======
+% fix for "the left near corner"
+LOCATION-PHRASE < (PP <-1 (NP [ <1 NP=np1 & <2 (PP=pp [ <1 (IN=in < near) & <-1 (NP=np2 <1 NP=np3)])]))
+
+move in >-1 np1
+move np3 >-1 np1
+excise np3 np3
+excise np2 np2
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 excise pp pp

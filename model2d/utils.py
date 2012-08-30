@@ -4,8 +4,13 @@ from __future__ import division
 
 import sys
 import random
+<<<<<<< HEAD
 from itertools import product
 from functools import partial
+=======
+from functools import partial
+import inspect
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 import numpy as np
 from planar import Vec2, BoundingBox
@@ -14,12 +19,22 @@ from planar import Vec2, BoundingBox
 sys.path.append('..')
 from table2d.speaker import Speaker
 from table2d.landmark import RectangleRepresentation, Scene, Landmark, PointRepresentation, ObjectClass
+<<<<<<< HEAD
 from table2d.relation import (DistanceRelationSet,
                               ContainmentRelationSet,
                               OrientationRelationSet,
                               VeryCloseDistanceRelation)
 
 
+=======
+from table2d.relation import OrientationRelationSet
+from table2d.run import construct_training_scene
+
+NONTERMINALS = ('LOCATION-PHRASE', 'RELATION', 'LANDMARK-PHRASE', 'LANDMARK')
+
+def get_lmk_ori_rels_str(lmk):
+    return ( ','.join([rel.__name__ if rel in lmk.ori_relations else '' for rel in OrientationRelationSet.relations]) ) if lmk else None
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 def parent_landmark(lmk):
     """gets a landmark and returns its parent landmark
@@ -38,7 +53,11 @@ def count_lmk_phrases(t):
 
 # a wrapper for a table2d scene
 class ModelScene(object):
+<<<<<<< HEAD
     def __init__(self, scene=None):
+=======
+    def __init__(self, scene=None, speaker=None):
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
         self.scene = scene
         if scene is None:
             self.scene = Scene(3)
@@ -53,9 +72,19 @@ class ModelScene(object):
             self.table = table
 
         self.table = self.scene.landmarks['table']
+<<<<<<< HEAD
         # there is a person standing at this location
         # he will be our reference
         self.speaker = Speaker(Vec2(5.5, 4.5))
+=======
+
+        # there is a person standing at this location
+        # he will be our reference
+        if speaker is None:
+            self.speaker = Speaker(Vec2(5.5, 4.5))
+        else:
+            self.speaker = speaker
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
         # NOTE we need to keep around the list of landmarks so that we can
         # access them by id, which is the index of the landmark in this list
@@ -99,8 +128,12 @@ class ModelScene(object):
             landmarks = [l for l in landmarks if l.get_ancestor_count() == num_ancestors]
 
         loc = Landmark(None, PointRepresentation(loc), None, None)
+<<<<<<< HEAD
         lmk, lmk_prob, lmk_entropy = self.speaker.sample_landmark( landmarks, loc )
         head_on = self.speaker.get_head_on_viewpoint(lmk)
+=======
+        lmk, lmk_prob, lmk_entropy, head_on = self.speaker.sample_landmark( landmarks, loc )
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
         rel, rel_prob, rel_entropy = self.speaker.sample_relation(loc, self.table.representation.get_geometry(), head_on, lmk, step=0.5)
         rel = rel(head_on,lmk,loc)
 
@@ -108,7 +141,11 @@ class ModelScene(object):
 
 
 # we will use this instance of the scene
+<<<<<<< HEAD
 scene = ModelScene()
+=======
+scene = ModelScene( *construct_training_scene() )
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 
 
@@ -130,7 +167,13 @@ def get_meaning(loc=None, num_ancestors=None):
 
 def m2s(lmk, rel):
     """returns a string that describes the gives landmark and relation"""
+<<<<<<< HEAD
     return '<lmk=%s(%s), rel=%s>' % (repr(lmk), lmk_id(lmk), rel_type(rel))
+=======
+    return '<lmk=%s(%s, %s), rel=%s(%s,%s)>' % (repr(lmk), lmk_id(lmk), lmk.object_class if lmk else None, rel_type(rel),
+                                                rel.measurement.best_degree_class if hasattr(rel,'measurement') else None,
+                                                rel.measurement.best_distance_class if hasattr(rel,'measurement') else None)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 
 
@@ -200,6 +243,14 @@ def force_unicode(s, encoding='utf-8', errors='strict'):
         return str(s).decode(encoding, errors)
 
 
+<<<<<<< HEAD
+=======
+def logger(msg):
+    fn, line = inspect.stack()[1][1:3]
+    fn = fn[fn.rfind('/')+1:]
+    print "%s:%d - %s" % (fn, line, msg)
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 # generates a list of tuples of size `n`
 # each tuple is an ngram and includes the right number

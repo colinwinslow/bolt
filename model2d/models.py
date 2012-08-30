@@ -3,6 +3,7 @@
 
 from __future__ import division
 
+<<<<<<< HEAD
 from sqlalchemy import create_engine, and_, or_
 from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from sqlalchemy.orm import relationship, backref, aliased, sessionmaker
@@ -10,12 +11,24 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.ext.declarative import _declarative_constructor
 
 from utils import force_unicode, bigrams, trigrams
+=======
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, Float, String, ForeignKey
+from sqlalchemy.orm import relationship, backref, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import _declarative_constructor
+
+from utils import force_unicode, bigrams, trigrams, lmk_id
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 import numpy as np
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 ### configuration ###
 
 db_url = 'sqlite:///table2d.db'
@@ -23,8 +36,11 @@ echo = False
 
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 ### utilities ###
 
 # as seen on http://stackoverflow.com/a/1383402
@@ -109,6 +125,10 @@ class Location(Base):
     def __unicode__(self):
         return u'(%s,%s)' % (self.x, self.y)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 class Word(Base):
     id = Column(Integer, primary_key=True)
 
@@ -162,12 +182,107 @@ class CWord(Base):
 
     landmark = Column(Integer)
     landmark_class = Column(Integer)
+<<<<<<< HEAD
+=======
+    landmark_orientation_relations = Column(String)
+    landmark_color = Column(String)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     relation = Column(String)
     relation_distance_class = Column(Integer)
     relation_degree_class = Column(Integer)
 
     count = Column(Float, nullable=False, default=0)
 
+<<<<<<< HEAD
+=======
+    @classmethod
+    def get_word_counts(cls,
+                        pos=None,
+                        word=None,
+                        lmk=None,
+                        lmk_class=None,
+                        lmk_ori_rels=None,
+                        lmk_color=None,
+                        rel=None,
+                        rel_dist_class=None,
+                        rel_deg_class=None):
+        q = cls.query
+        if word != None:
+            q = q.filter(CWord.word==word)
+        if pos != None:
+            q = q.filter(CWord.pos==pos)
+        if lmk != None:
+            q = q.filter(CWord.landmark==lmk)
+        if lmk_class != None:
+            q = q.filter(CWord.landmark_class==lmk_class)
+        if lmk_ori_rels is not None:
+            q = q.filter(CWord.landmark_orientation_relations==lmk_ori_rels)
+        if lmk_color is not None:
+            q = q.filter(CWord.landmark_color==lmk_color)
+        if rel != None:
+            q = q.filter(CWord.relation==rel)
+        if rel_dist_class != None:
+            q = q.filter(CWord.relation_distance_class==rel_dist_class)
+        if rel_deg_class != None:
+            q = q.filter(CWord.relation_degree_class==rel_deg_class)
+
+        return q
+
+    @classmethod
+    def update_word_counts(cls,
+                           update,
+                           pos,
+                           word,
+                           lmk=None,
+                           lmk_class=None,
+                           lmk_ori_rels=None,
+                           lmk_color=None,
+                           rel=None,
+                           rel_dist_class=None,
+                           rel_deg_class=None):
+        cp_db = cls.get_word_counts(pos, word, lmk, lmk_class, lmk_ori_rels, lmk_color, rel, rel_dist_class, rel_deg_class)
+
+        if cp_db.count() <= 0:
+            assert(update > 0)
+            CWord(word=word,
+                  pos=pos,
+                  landmark=lmk_id(lmk),
+                  landmark_class=lmk_class,
+                  landmark_orientation_relations=lmk_ori_rels,
+                  landmark_color=lmk_color,
+                  relation=rel,
+                  relation_distance_class=rel_dist_class,
+                  relation_degree_class=rel_deg_class,
+                  count=update)
+        else:
+            # for cword in cp_db.all():
+            #     print 'Count for %s before: %f' % (cword.word, cword.count)
+            #     cword.count *= (1.0 + update)
+            #     print 'Count for %s after: %f' % (cword.word, cword.count)
+
+            ccounter = {}
+            for cword in cp_db.all():
+                # print cword.word, cword.count
+                if cword.word in ccounter: ccounter[cword.word] += cword.count
+                else: ccounter[cword.word] = cword.count
+
+            # print '----------------'
+
+            ckeys, ccounts = zip(*ccounter.items())
+
+            ccounts = np.array(ccounts, dtype=float)
+            ccounts /= ccounts.sum()
+            updates = ccounts * update
+            ups = dict( zip(ckeys, updates) )
+
+            for cword in cp_db.all():
+                if cword.count <= -ups[cword.word]: cword.count = 1
+                else: cword.count += ups[cword.word]
+                # print cword.word, cword.count
+
+        session.commit()
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     def __unicode__(self):
         return u'%s (%s)' % (self.word, self.count)
 
@@ -226,6 +341,11 @@ class Production(Base):
     # semantic content
     landmark = Column(Integer)
     landmark_class = Column(Integer)
+<<<<<<< HEAD
+=======
+    landmark_orientation_relations = Column(String)
+    landmark_color = Column(String)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     relation = Column(String)
     relation_distance_class = Column(Integer)
     relation_degree_class = Column(Integer)
@@ -262,6 +382,7 @@ class Production(Base):
 
         return q
 
+<<<<<<< HEAD
     @classmethod
     def delete_productions(cls, limit, rhs, lhs=None, parent=None, lmk=None, rel=None):
         q = cls.query
@@ -283,6 +404,8 @@ class Production(Base):
         ret = q.limit(limit).delete()
         session.commit()
         return ret
+=======
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 class CProduction(Base):
     id = Column(Integer, primary_key=True)
@@ -294,6 +417,11 @@ class CProduction(Base):
     # semantic content
     landmark = Column(Integer)
     landmark_class = Column(Integer)
+<<<<<<< HEAD
+=======
+    landmark_orientation_relations = Column(String)
+    landmark_color = Column(String)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
     relation = Column(String)
     relation_distance_class = Column(Integer)
     relation_degree_class = Column(Integer)
@@ -309,6 +437,11 @@ class CProduction(Base):
                               rhs=None,
                               parent=None,
                               lmk_class=None,
+<<<<<<< HEAD
+=======
+                              lmk_ori_rels=None,
+                              lmk_color=None,
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
                               rel=None,
                               dist_class=None,
                               deg_class=None):
@@ -321,6 +454,13 @@ class CProduction(Base):
             q = q.filter(CProduction.parent==parent)
         if lmk_class != None:
             q = q.filter(CProduction.landmark_class==lmk_class)
+<<<<<<< HEAD
+=======
+        if lmk_ori_rels is not None:
+            q = q.filter(CProduction.landmark_orientation_relations==lmk_ori_rels)
+        if lmk_color is not None:
+            q = q.filter(CProduction.landmark_color==lmk_color)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
         if rel != None:
             q = q.filter(CProduction.relation==rel)
         if dist_class != None:
@@ -337,6 +477,7 @@ class CProduction(Base):
                                  rhs,
                                  parent=None,
                                  lmk_class=None,
+<<<<<<< HEAD
                                  rel=None,
                                  dist_class=None,
                                  deg_class=None):
@@ -361,6 +502,53 @@ class CProduction(Base):
             cprod.count += ups[cprod.rhs]
             print cprod.rhs, cprod.count
         session.flush()
+=======
+                                 lmk_ori_rels=None,
+                                 lmk_color=None,
+                                 rel=None,
+                                 dist_class=None,
+                                 deg_class=None):
+        cp_db = cls.get_production_counts(lhs,rhs,parent,lmk_class,lmk_ori_rels,lmk_color,rel,dist_class,deg_class)
+
+        if cp_db.count() <= 0:
+            assert(update > 0)
+            CProduction(lhs=lhs,
+                        rhs=rhs,
+                        parent=parent,
+                        landmark_class=lmk_class,
+                        landmark_orientation_relations=lmk_ori_rels,
+                        landmark_color=lmk_color,
+                        relation=rel,
+                        relation_distance_class=dist_class,
+                        relation_degree_class=deg_class,
+                        count=update)
+        else:
+            # for cprod in cp_db.all():
+            #     print 'Count for %s before: %f' % (cprod.rhs, cprod.count)
+            #     cprod.count *= (1.0 + update)
+            #     print 'Count for %s after: %f' % (cprod.rhs, cprod.count)
+
+            ccounter = {}
+            for cprod in cp_db.all():
+                # print cprod.rhs, cprod.count
+                if cprod.rhs in ccounter: ccounter[cprod.rhs] += cprod.count
+                else: ccounter[cprod.rhs] = cprod.count
+
+            # print '----------------'
+
+            ckeys, ccounts = zip(*ccounter.items())
+
+            ccounts = np.array(ccounts, dtype=float)
+            ccounts /= ccounts.sum()
+            updates = ccounts * update
+            ups = dict( zip(ckeys, updates) )
+
+            for cprod in cp_db.all():
+                if cprod.count <= -ups[cprod.rhs]: cprod.count = 1
+                else: cprod.count += ups[cprod.rhs]
+                # print cprod.rhs, cprod.count
+
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
         session.commit()
 
 class WordCPT(Base):
@@ -489,8 +677,42 @@ class ExpansionCPT(Base):
         return
 
 
+<<<<<<< HEAD
 
 
+=======
+class SentenceParse(Base):
+    id = Column(Integer, primary_key=True)
+
+    sentence = Column(String)
+    original_parse = Column(String)
+    modified_parse = Column(String)
+
+    @classmethod
+    def get_sentence_parse(cls, sentence, orig_parse=None, mod_parse=None):
+        q = cls.query
+        q = q.filter(SentenceParse.sentence==sentence)
+
+        # if orig_parse != None:
+        #     q = q.filter(SentenceParses.original_parse==orig_parse)
+
+        return q
+
+    @classmethod
+    def add_sentence_parse(cls, sentence, orig_parse, mod_parse):
+        sp_db = cls.get_sentence_parse(sentence, orig_parse, mod_parse)
+        if sp_db.count() <= 0:
+            SentenceParse(sentence=sentence,
+                          original_parse=orig_parse,
+                          modified_parse=mod_parse)
+            session.commit()
+
+    @classmethod
+    def add_sentence_parse_blind(cls, sentence, orig_parse, mod_parse):
+        SentenceParse(sentence=sentence,
+                      original_parse=orig_parse,
+                      modified_parse=mod_parse)
+>>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
 
 
 
