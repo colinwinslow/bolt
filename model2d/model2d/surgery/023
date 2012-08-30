@@ -1,4 +1,0 @@
-LOCATION-PHRASE [ < (RELATION < NP=np) & < (LANDMARK-PHRASE < (LANDMARK=lmk)) ]
-
-move np >1 lmk
-excise np np

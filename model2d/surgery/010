@@ -1,7 +1,0 @@
-<<<<<<< HEAD
-=======
-% NOTE seems this is not happening with the new data 8/18/2010
->>>>>>> 056a0c551d985ed05018d0fc0987c34c485ddaef
-LOCATION-PHRASE < (PP [ <1 (IN < near) & <2 PP=pp])
-
-excise pp pp

@@ -1,5 +1,0 @@
-% remove ADJP that is a direct descendant of LOCATION-PHRASE
-ADJP=adjp [ > LOCATION-PHRASE & <-1 PP=pp ]
-
-excise pp pp
-relabel adjp PP
