@@ -17,6 +17,7 @@ import numpy as np
 ### configuration ###
 
 db_url = 'sqlite:///table2d.db'
+#db_url = 'postgresql+pg8000://postgres:postgres@localhost:5432/table2d'
 echo = False
 
 
@@ -158,12 +159,12 @@ class CWord(Base):
     pos = Column(String, nullable=False)
 
     landmark = Column(Integer)
-    landmark_class = Column(Integer)
+    landmark_class = Column(String)
     landmark_orientation_relations = Column(String)
     landmark_color = Column(String)
     relation = Column(String)
-    relation_distance_class = Column(Integer)
-    relation_degree_class = Column(Integer)
+    relation_distance_class = Column(String)
+    relation_degree_class = Column(String)
 
     count = Column(Float, nullable=False, default=0)
 
@@ -311,12 +312,12 @@ class Production(Base):
 
     # semantic content
     landmark = Column(Integer)
-    landmark_class = Column(Integer)
+    landmark_class = Column(String)
     landmark_orientation_relations = Column(String)
     landmark_color = Column(String)
     relation = Column(String)
-    relation_distance_class = Column(Integer)
-    relation_degree_class = Column(Integer)
+    relation_distance_class = Column(String)
+    relation_degree_class = Column(String)
 
     # belongs_to
     parent_id = Column(Integer, ForeignKey('productions.id'))
@@ -360,12 +361,12 @@ class CProduction(Base):
 
     # semantic content
     landmark = Column(Integer)
-    landmark_class = Column(Integer)
+    landmark_class = Column(String)
     landmark_orientation_relations = Column(String)
     landmark_color = Column(String)
     relation = Column(String)
-    relation_distance_class = Column(Integer)
-    relation_degree_class = Column(Integer)
+    relation_distance_class = Column(String)
+    relation_degree_class = Column(String)
 
     count = Column(Float, nullable=False, default=0)
 

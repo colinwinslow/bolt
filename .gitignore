@@ -3,8 +3,11 @@
 .ropeproject
 *.sublime-workspace
 *.sublime-project
+.settings
+.DS_Store
 stanford-tregex/
 .DS_Store
 .project
 .pydevproject
 tags
+

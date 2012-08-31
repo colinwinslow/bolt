@@ -133,7 +133,7 @@ if __name__ == '__main__':
                         parent.relation_degree_class, func.count(Word.id)).\
                   join(parent, Word.parent).\
                   group_by(Word.word, Word.pos,
-                           parent.landmark, parent.landmark_class, parent.landmark_orientation_relations,
+                           parent.landmark, parent.landmark_class, parent.landmark_orientation_relations, parent.landmark_color,
                            parent.relation, parent.relation_distance_class,
                            parent.relation_degree_class)
     for row in qry:
@@ -156,7 +156,7 @@ if __name__ == '__main__':
                         Production.relation_degree_class, func.count(Production.id)).\
                   filter_by(parent=None).\
                   group_by(Production.lhs, Production.rhs,
-                           Production.landmark, Production.landmark_class, Production.landmark_orientation_relations,
+                           Production.landmark, Production.landmark_class, Production.landmark_orientation_relations, Production.landmark_color,
                            Production.relation, Production.relation_distance_class,
                            Production.relation_degree_class)
     for row in qry:
@@ -179,7 +179,7 @@ if __name__ == '__main__':
                         Production.relation_degree_class, func.count(Production.id)).\
                   join(parent, Production.parent).\
                   group_by(Production.lhs, Production.rhs,
-                           parent.lhs, Production.landmark, Production.landmark_class, Production.landmark_orientation_relations,
+                           parent.lhs, Production.landmark, Production.landmark_class, Production.landmark_orientation_relations, Production.landmark_color,
                            Production.relation, Production.relation_distance_class,
                            Production.relation_degree_class)
     for row in qry:
