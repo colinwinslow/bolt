@@ -40,6 +40,7 @@ def get_expansion(lhs, parent=None, lmk=None, rel=None):
             lmk_class = (lmk.object_class if lmk else None)
             lmk_ori_rels = get_lmk_ori_rels_str(lmk)
             lmk_color = (lmk.color if lmk else None)
+            #if lmk: print lmk, lmk_class, lmk_ori_rels, lmk.ori_relations
             rel_class = rel_type(rel)
             dist_class = (rel.measurement.best_distance_class if hasattr(rel, 'measurement') else None)
             deg_class = (rel.measurement.best_degree_class if hasattr(rel, 'measurement') else None)
@@ -57,6 +58,8 @@ def get_expansion(lhs, parent=None, lmk=None, rel=None):
                 logger('Could not expand %s (parent: %s, lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (n, parent, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
                 terminals.append( n )
                 continue
+                
+            logger('Expanded %s (parent: %s, lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (n, parent, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
 
             ckeys, ccounts = zip(*[(cprod.rhs,cprod.count) for cprod in cp_db.all()])
 
@@ -151,6 +154,8 @@ def get_words(terminals, landmarks, rel=None):
             logger( 'Could not expand %s (lmk_class: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (n, lmk_class, lmk_color, rel_class, dist_class, deg_class) )
             terminals.append( n )
             continue
+
+        logger( 'Expanded %s (lmk_class: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (n, lmk_class, lmk_color, rel_class, dist_class, deg_class) )
 
         ckeys, ccounts = zip(*[(cword.word,cword.count) for cword in cp_db.all()])
 

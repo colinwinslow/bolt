@@ -67,6 +67,7 @@ def get_tree_probs(tree, lmk=None, rel=None):
             logger('Could not expand %s (parent: %s, lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (lhs, parent, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
         else:
             ckeys, ccounts = zip(*[(cprod.rhs,cprod.count) for cprod in cp_db.all()])
+            logger('Expanded %s (parent: %s, lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (lhs, parent, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
 
             ccounter = {}
             for cprod in cp_db.all():
@@ -114,6 +115,7 @@ def get_tree_probs(tree, lmk=None, rel=None):
             # we just update the term_prods list
             logger('Could not expand %s (lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (lhs, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
         else:
+            logger('Expanded %s (lmk_class: %s, lmk_ori_rels: %s, lmk_color: %s, rel: %s, dist_class: %s, deg_class: %s)' % (lhs, lmk_class, lmk_ori_rels, lmk_color, rel_class, dist_class, deg_class))
 
             ckeys, ccounts = zip(*[(cword.word,cword.count) for cword in cw_db.all()])
 

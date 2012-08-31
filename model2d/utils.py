@@ -20,7 +20,9 @@ from table2d.run import construct_training_scene
 NONTERMINALS = ('LOCATION-PHRASE', 'RELATION', 'LANDMARK-PHRASE', 'LANDMARK')
 
 def get_lmk_ori_rels_str(lmk):
-    return ( ','.join([rel.__name__ if rel in lmk.ori_relations else '' for rel in OrientationRelationSet.relations]) ) if lmk else None
+    rel_str = ( ','.join([rel.__name__ if rel.__name__ in [r.__name__ for r in lmk.ori_relations] else '' for rel in OrientationRelationSet.relations]) ) if lmk else None
+    #if lmk: print 'getting rel str', OrientationRelationSet.relations, lmk, lmk.ori_relations, rel_str
+    return rel_str
 
 def parent_landmark(lmk):
     """gets a landmark and returns its parent landmark
