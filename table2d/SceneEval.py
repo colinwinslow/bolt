@@ -43,7 +43,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,0,11,Fals
     dbtimestart = time()
     clusterCandidates = clustercost(dbscan(inputObjectSet,distanceMatrix,objectDict),objectDict)
     dbtimestop = time()
-    print "dbscan time: \t\t\t", dbtimestop-dbtimestart
+#    print "dbscan time: \t\t\t", dbtimestop-dbtimestart
 #    print 'clustercandidates',clusterCandidates
     
     innerLines = []
@@ -69,7 +69,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,0,11,Fals
                         reducedObjectSet.remove(x)
         ReducedDistanceMatrix = cluster_util.create_distance_matrix(reducedObjectSet)
         insideLineStop = time()
-        print "inside linesearch time:\t\t",insideLineStop-insideLineStart
+#        print "inside linesearch time:\t\t",insideLineStop-insideLineStart
         
     outsideLineStart = time()
     lineCandidates = findChains(reducedObjectSet,params)
@@ -84,27 +84,39 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,0,11,Fals
 
 
 
-    print "general linesearch time:\t",outsideLineStop-outsideLineStart
+#    print "general linesearch time:\t",outsideLineStop-outsideLineStart
     allCandidates = clusterCandidates[0]+clusterCandidates[1] + lineCandidates + innerLines
+    allClusters = clusterCandidates[0]+clusterCandidates[1]
+    allLines = lineCandidates + innerLines
     groupDictionary = dict()
     for i in allCandidates:
         groupDictionary[i.uuid]=i
     for i in inputObjectSet:
         groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.id],1,i.uuid)
     bundleStart = time()
-    evali = bundleSearch(inputObjectSet, allCandidates, params.allow_intersection, params.beam_width)   
+    bestLines = bundleSearch(inputObjectSet, allLines, params.allow_intersection, params.beam_width)   
+    bestClusters = bundleSearch(inputObjectSet, allClusters, params.allow_intersection, params.beam_width) 
+    evali = [] 
+    try:
+         evali = evali + bestLines
+         print "there are", len(bestLines), "line groups."
+    except: print "there aren't any lines."
+    try:
+         evali = evali + bestClusters
+         print "there are", len(bestClusters), "cluster groups."
+    except: print "there aren't any clusterss."
     bundleStop = time()
-    print "bundlesearch time: \t\t",bundleStop-bundleStart
+#    print "bundlesearch time: \t\t",bundleStop-bundleStart
     #find the things in evali that aren't in the dictionary ,and make a singleton group out of them, and add it to the output
 
     #what the heck am i doing here?
-    physicalobjects = []
-
-    for i in evali:
-        try:
-            physicalobjects.append(groupDictionary.get(i))
-        except:
-            print "not in dictionary"
+#    physicalobjects = []
+#
+#    for i in evali:
+#        try:
+#            physicalobjects.append(groupDictionary.get(i))
+#        except:
+#            print "not in dictionary"
     output = map(lambda x: groupDictionary.get(x),evali)
 
 #    print 'costs', map(lambda x: x.cost,output)

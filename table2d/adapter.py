@@ -21,8 +21,7 @@ def adapt(landmarks):
         
     bundles = SceneEval.sceneEval(objects)
 
-    for i in bundles:
-       print i.convert(landmarkDict)
+
 
     results = [bundle.convert(landmarkDict) for bundle in bundles]
     return  results

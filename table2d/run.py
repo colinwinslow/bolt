@@ -13,7 +13,7 @@ from landmark import (GroupLineRepresentation,
                       Color)
 from random import random
 import pickle
-#import adapter
+import adapter
 
 def construct_training_scene():
     speaker = Speaker(Vec2(0,0))
@@ -65,12 +65,12 @@ def construct_training_scene():
 if __name__ == '__main__':
     scene, speaker = construct_training_scene()
     
-#    lmks = [lmk for lmk in scene.landmarks.values() if not lmk.name == 'table']
-#    groups = adapter.adapt(lmks)
-#    
-#    for i,g in enumerate(groups):
-#        scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
-        
+    lmks = [lmk for lmk in scene.landmarks.values() if not lmk.name == 'table']
+    groups = adapter.adapt(lmks)
+    
+    for i,g in enumerate(groups):
+        try: scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
+        except: print "this error is happening because of singletonbundles mixed in with the lines. Will fix soon!"
     #perspectives = [ Vec2(5.5,4.5), Vec2(6.5,6.0)]
     #speaker.talk_to_baby(scene, perspectives, how_many_each=10)
 

@@ -156,7 +156,6 @@ class Landmark(object):
         self.ori_relations = set()
 
         self.representation.parent_landmark = self
-
         for alt_repr in representation.get_alt_representations():
             alt_repr.parent_landmark = self
 
