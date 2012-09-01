@@ -26,6 +26,10 @@ class PhysicalObject:
     def __iter__(self):
         for i in self.listOfFields:
             yield i
+    def bb_area(self):
+        l = self.bbmax[0]-self.bbmin[0]
+        w = self.bbmax[1]-self.bbmin[1]
+        return l*w
     
 #PhysicalObject = namedtuple('physicalObject', ['id', 'position', 'bbmin', 'bbmax'])  
 ClusterParams = namedtuple("ClusterParams",['chain_distance_limit', 'angle_limit', 'min_line_length',
@@ -56,9 +60,17 @@ def create_distance_matrix(data):
 
 def convex_hull(data):
     BoundingBoxes = convert_to_bboxes(data)
-    points = map(lambda x: x.center,BoundingBoxes)
+    polys = []
+    for b in BoundingBoxes:
+        polys.append(b.to_polygon())
+    points = [] 
+    for p in polys:
+        output = [i for i in p]
+        points = points + output
     return points
-    
+
+
+
 def area(p):
     return 0.5 * abs(sum(x0*y1 - x1*y0
                          for ((x0, y0), (x1, y1)) in segments(p)))

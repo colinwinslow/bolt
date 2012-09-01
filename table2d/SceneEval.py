@@ -121,6 +121,8 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     output = map(lambda x: groupDictionary.get(x),evali)
 
 #    print 'costs', map(lambda x: x.cost,output)
+    for i in output:
+        print i.bundleType, i.cost
     return output
 
     

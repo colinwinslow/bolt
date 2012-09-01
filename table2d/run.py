@@ -76,10 +76,11 @@ if __name__ == '__main__':
 
     dozen = 1
     couple = 1
-    for i in range(couple * dozen):
-        location = Landmark( 'point', PointRepresentation(Vec2(random()*0.8-0.4,random()*0.6+0.4)), None, Landmark.POINT)
-        trajector = location#obj2
-        speaker.describe(trajector, scene, True, 1)
+    while True:
+        for i in range(couple * dozen):
+            location = Landmark( 'point', PointRepresentation(Vec2(random()*0.8-0.4,random()*0.6+0.4)), None, Landmark.POINT)
+            trajector = location#obj2
+            speaker.describe(trajector, scene, True, 1)
         # speaker.get_all_meaning_descriptions(trajector, scene, 1)
     # location = Vec2(5.68, 5.59)##Vec2(5.3, 5.5)
     # speaker.demo(location, scene)

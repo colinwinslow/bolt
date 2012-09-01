@@ -17,49 +17,33 @@ from planar import Vec2,BoundingBox
 import landmark
 
 
-def clustercost(data,objectDict,baseline = 0.001):
+def clusterCostWorker(data,objectDict,baseline):
+    output = []
+    for i in data:
+        corePO = map(lambda x: objectDict.get(x),i)
+        coreHull = cluster_util.convex_hull(corePO)
+        area = sum(objectDict.get(p).bb_area() for p in i)
+        try:
+            density = area/cluster_util.area(coreHull)
+        except:
+            density = 0
+        if density>=1: print "groups are too dense, things may be weird."
+        print density
+        cost = len(i)*(1-density) + baseline
+        
+        corecluster=cluster_util.GroupBundle(i,cost)
+        output.append(corecluster)
+    return output
+def clustercost(data,objectDict,baseline = 0.0001):
     #    data is a tuple of two dictionaries: core cluster data first, then larger and more permissive clusters\
     # this func needs to return a unified list of possible clusters using both dictionaries in the style of the chain finder function
     # quick and dirty:
     
-    smallClusters = []
-    bigClusters = []
-
-    
-    
-    
-    
-    #cores
-    for i in data[0].values():
-        corePO = map(lambda x: objectDict.get(x),i)
-        coreHull = cluster_util.convex_hull(corePO)
-        try:
-            density = len(i)/cluster_util.area(coreHull)
-        except:
-            density = 0
-        if density>=1: print "groups are too dense, things may be weird."
-        cost = len(i)*(1-density) + baseline
-        
-        corecluster=cluster_util.GroupBundle(i,cost)
-        smallClusters.append(corecluster)
-        
-    #fringes
-    for i in data[1].values():
-        fringePO = map(lambda x: objectDict.get(x),i)
-        fringeHull = cluster_util.convex_hull(fringePO)
-        try:
-            density = len(i)/cluster_util.area(fringeHull)
-        except:
-            density = 0
-        if density>=1: print "groups are too dense, things may be weird."
-        cost = len(i)*(1-density) + baseline
-    
-        bigcluster = cluster_util.GroupBundle(i,cost)
-        bigClusters.append(bigcluster)
+    smallClusters = clusterCostWorker(data[0].values(),objectDict,baseline)
+    bigClusters =  clusterCostWorker(data[1].values(),objectDict,baseline)
         
     return (smallClusters,bigClusters)
 
-    #cores+fringes
 
 
 
