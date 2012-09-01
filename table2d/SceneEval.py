@@ -26,7 +26,7 @@ def main():
 
     
 
-def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,0,11,False)):
+def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,False)):
     
     '''
     find the clusters
@@ -94,6 +94,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,0,11,Fals
     for i in inputObjectSet:
         groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.id],1,i.uuid)
     bundleStart = time()
+    print params.allow_intersection
     bestLines = bundleSearch(inputObjectSet, allLines, params.allow_intersection, params.beam_width)   
     bestClusters = bundleSearch(inputObjectSet, allClusters, params.allow_intersection, params.beam_width) 
     evali = [] 
@@ -151,7 +152,7 @@ def findChains(inputObjectSet, params, distanceMatrix = -1 ):
         if len(line)>params.min_line_length:
             verybest.append(line)
     verybest.sort(key=lambda l: len(l),reverse=True)
-    costs = map(lambda l: l.pop()+2,verybest)
+    costs = map(lambda l: l.pop()+1.5,verybest)
     data = np.array(map(lambda x: (x.position,x.id),inputObjectSet))
     output = []
     for i in zip(costs,verybest):
