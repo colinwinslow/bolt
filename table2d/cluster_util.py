@@ -114,6 +114,7 @@ class Bundle(object):
         if uuid == -1:
             self.uuid = uuid4()
         else: self.uuid = uuid
+        self.debuginfo = []
     def __getitem__(self,item):
         return self.members[item]
     def __iter__(self):

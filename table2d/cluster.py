@@ -17,7 +17,7 @@ from planar import Vec2,BoundingBox
 import landmark
 
 
-def clusterCostWorker(data,objectDict,baseline):
+def clusterCostWorker(data,objectDict):
     output = []
     for i in data:
         corePO = map(lambda x: objectDict.get(x),i)
@@ -27,20 +27,22 @@ def clusterCostWorker(data,objectDict,baseline):
             density = area/cluster_util.area(coreHull)
         except:
             density = 0
-        if density>=1: print "groups are too dense, things may be weird."
-        print density
-        cost = len(i)*(1-density) + baseline
+        if density > 1.3:
+            groupAwesomeness = 1
+        else: groupAwesomeness = density/1.3
+        cost = .8*len(i)+.2*len(i) * np.sqrt(1-groupAwesomeness**2)
         
         corecluster=cluster_util.GroupBundle(i,cost)
+        
         output.append(corecluster)
     return output
-def clustercost(data,objectDict,baseline = 0.0001):
+def clustercost(data,objectDict):
     #    data is a tuple of two dictionaries: core cluster data first, then larger and more permissive clusters\
     # this func needs to return a unified list of possible clusters using both dictionaries in the style of the chain finder function
     # quick and dirty:
     
-    smallClusters = clusterCostWorker(data[0].values(),objectDict,baseline)
-    bigClusters =  clusterCostWorker(data[1].values(),objectDict,baseline)
+    smallClusters = clusterCostWorker(data[0].values(),objectDict)
+    bigClusters =  clusterCostWorker(data[1].values(),objectDict)
         
     return (smallClusters,bigClusters)
 

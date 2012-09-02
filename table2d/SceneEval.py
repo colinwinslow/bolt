@@ -105,6 +105,8 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     try:
          evali = evali + bestClusters
          print "there are", len(bestClusters), "cluster groups."
+         for i in bestClusters:
+             print "a cluster", groupDictionary.get(i).cost,groupDictionary.get(i).debuginfo
     except: print "there aren't any clusterss."
     bundleStop = time()
 #    print "bundlesearch time: \t\t",bundleStop-bundleStart
@@ -121,8 +123,8 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     output = map(lambda x: groupDictionary.get(x),evali)
 
 #    print 'costs', map(lambda x: x.cost,output)
-    for i in output:
-        print i.bundleType, i.cost
+#    for i in output:
+#        print i.bundleType, i.cost
     return output
 
     
