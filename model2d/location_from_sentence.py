@@ -15,6 +15,7 @@ from utils import (parent_landmark,
                    count_lmk_phrases,
                    logger,
                    get_lmk_ori_rels_str,
+                   scene,
                    NONTERMINALS)
 from models import CProduction, CWord
 
@@ -176,6 +177,26 @@ def get_sentence_posteriors(sentence, iterations=1, extra_meaning=None):
     for key in meaning_probs:
         meaning_probs[key] /= summ
     return meaning_probs.items()
+
+def get_all_sentence_posteriors(sentence, meanings):
+
+    print 'parsing ...'
+    modparse = get_modparse(sentence)
+    t = ParentedTree.parse(modparse)
+    print '\n%s\n' % t.pprint()
+    num_ancestors = count_lmk_phrases(t) - 1
+
+    posteriors = []
+    for meaning in meanings:
+        lmk,rel = meaning
+        if lmk.get_ancestor_count() != num_ancestors:
+            p = 0
+        else:
+            ps = get_tree_probs(t, lmk, rel)[0]
+            p = np.prod(ps)
+        posteriors.append(p)
+    return posteriors
+
 
 def get_sentence_meaning_likelihood(sentence, lmk, rel):
     modparse = get_modparse(sentence)

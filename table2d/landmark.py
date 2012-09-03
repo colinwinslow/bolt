@@ -172,10 +172,21 @@ class Landmark(object):
         for p in rep.get_points():
             tpd = top_parent.distance_to_point(p)
             if self.parent: p = self.parent.project_point(p)
-            d = self.representation.distance_to_point(p) + tpd
+            d = self.representation.distance_to_point(p)
+            d = np.sqrt( d*d + tpd*tpd )
             if d < min_dist: min_dist = d
 
         return min_dist
+
+    def distance_to_point(self, p):
+        top_parent = self.get_top_parent()
+        tpd = top_parent.distance_to_point(p)
+        if self.parent: p = self.parent.project_point(p)
+        d = self.representation.distance_to_point(p)
+        # print self, self.parent, top_parent, p, tpd, d
+        d = np.sqrt( d*d + tpd*tpd )
+
+        return d
 
     def get_top_parent(self):
         top = self.parent
@@ -297,7 +308,7 @@ class PointRepresentation(AbstractRepresentation):
 
 
 class LineRepresentation(AbstractRepresentation):
-    def __init__(self, orientation='height', line=LineSegment.from_points([Vec2(0, 0), Vec2(1, 0)]), alt_of=None):
+    def __init__(self, ratio=None, line=LineSegment.from_points([Vec2(0, 0), Vec2(1, 0)]), alt_of=None):
         super(LineRepresentation, self).__init__(alt_of)
         self.line = line
         # extend the LineSegment to include a bounding_box field, planar doesn't have that originally
@@ -305,18 +316,23 @@ class LineRepresentation(AbstractRepresentation):
         self.num_dim = 1
         self.middle = line.mid
         self.alt_representations = [PointRepresentation(self.line.mid, self)]
+        self.ratio_limit = 2
 
-        classes = [Landmark.END, Landmark.MIDDLE, Landmark.END] if orientation == 'height' \
-             else [Landmark.SIDE, Landmark.MIDDLE, Landmark.SIDE]
 
-        self.landmarks = {
-            'start':  Landmark('start',  PointRepresentation(self.line.start), self, classes[0]),
-            'end':    Landmark('end',    PointRepresentation(self.line.end),   self, classes[2]),
-            'middle': Landmark('middle', PointRepresentation(self.line.mid),   self, classes[1]),
-        }
+        if ratio is None or ratio >= self.ratio_limit:
+            self.landmarks = {
+                'start':  Landmark('start',  PointRepresentation(self.line.start), self, Landmark.END),
+                'middle': Landmark('middle', PointRepresentation(self.line.mid),   self, Landmark.MIDDLE),
+                'end':    Landmark('end',    PointRepresentation(self.line.end),   self, Landmark.END),
+            }
+        else:
+            self.landmarks = {
+                'start':  Landmark('start',  PointRepresentation(self.line.start), self, Landmark.SIDE),
+                'end':    Landmark('end',    PointRepresentation(self.line.end),   self, Landmark.SIDE)
+            }
 
     def my_project_point(self, point):
-        return self.line.line.project(point)
+        return self.line.project(point)
 
     def distance_to(self, rep):
         geo = rep.get_geometry()
@@ -412,11 +428,13 @@ class RectangleRepresentation(AbstractRepresentation):
         self.rect = rect
         self.num_dim = 2
         self.middle = rect.center
-        self.alt_representations = [LineRepresentation('width',
+        vert_ratio = self.rect.height / self.rect.width
+        horiz_ratio = self.rect.width / self.rect.height
+        self.alt_representations = [LineRepresentation( horiz_ratio,
                                                         LineSegment.from_points([Vec2(self.rect.min_point.x, self.rect.center.y),
                                                                                  Vec2(self.rect.max_point.x, self.rect.center.y)],),
                                                         self),
-                                    LineRepresentation('height',
+                                    LineRepresentation( vert_ratio,
                                                         LineSegment.from_points([Vec2(self.rect.center.x, self.rect.min_point.y),
                                                                                  Vec2(self.rect.center.x, self.rect.max_point.y)]),
                                                         self)]
@@ -430,10 +448,10 @@ class RectangleRepresentation(AbstractRepresentation):
                 'lr_corner': '''Landmark('lr_corner', PointRepresentation(lrc), self, Landmark.CORNER)''',
                 'ul_corner': '''Landmark('ul_corner', PointRepresentation(ulc), self, Landmark.CORNER)''',
                 'middle':    '''Landmark('middle',    PointRepresentation(self.rect.center), self, Landmark.MIDDLE)''',
-                'l_edge':    '''Landmark('l_edge',    LineRepresentation('height', LineSegment.from_points([self.rect.min_point, ulc])), self, Landmark.EDGE)''',
-                'r_edge':    '''Landmark('r_edge',    LineRepresentation('height', LineSegment.from_points([lrc, self.rect.max_point])), self, Landmark.EDGE)''',
-                'n_edge':    '''Landmark('n_edge',    LineRepresentation('width', LineSegment.from_points([self.rect.min_point, lrc])), self, Landmark.EDGE)''',
-                'f_edge':    '''Landmark('f_edge',    LineRepresentation('width', LineSegment.from_points([ulc, self.rect.max_point])), self, Landmark.EDGE)''',
+                'l_edge':    '''Landmark('l_edge',    LineRepresentation(vert_ratio, LineSegment.from_points([self.rect.min_point, ulc])), self, Landmark.EDGE)''',
+                'r_edge':    '''Landmark('r_edge',    LineRepresentation(vert_ratio, LineSegment.from_points([lrc, self.rect.max_point])), self, Landmark.EDGE)''',
+                'n_edge':    '''Landmark('n_edge',    LineRepresentation(horiz_ratio, LineSegment.from_points([self.rect.min_point, lrc])), self, Landmark.EDGE)''',
+                'f_edge':    '''Landmark('f_edge',    LineRepresentation(horiz_ratio, LineSegment.from_points([ulc, self.rect.max_point])), self, Landmark.EDGE)''',
 
                 'l_surf':    '''Landmark('l_surf',    SurfaceRepresentation( BoundingBox([rect.min_point,
                                                                                        Vec2(rect.min_point.x+rect.width/2.0,
@@ -468,7 +486,18 @@ class RectangleRepresentation(AbstractRepresentation):
                 self.landmarks[lmk_name] = eval(landmark_constructors[lmk_name])
 
     def my_project_point(self, point):
-        return point
+        if self.contains_point( point ):
+            return point
+        else:
+            edges = poly_to_edges(self.rect.to_polygon())
+            min_dist = float('inf')
+            for edge in edges:
+                dist = edge.distance_to(point)
+                if dist < min_dist:
+                    min_dist = dist
+                    closest = edge
+            return closest.project(point)
+
 
     def distance_to(self, rep):
         geo = rep.get_geometry()
@@ -586,7 +615,7 @@ class GroupLineRepresentation(LineRepresentation):
 
 class GroupRectangleRepresentation(RectangleRepresentation):
     def __init__(self, lmk_group, alt_of=None):
-        shapes = [lmk.representation.get_geometry() for lmk in lmk_group] # what is lmk_group supposed to be?
+        shapes = [lmk.representation.get_geometry() for lmk in lmk_group]
         super(GroupRectangleRepresentation, self).__init__(rect=BoundingBox.from_shapes(shapes),
                                                            landmarks_to_get=['middle'],
                                                            alt_of=alt_of)
