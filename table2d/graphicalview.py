@@ -191,13 +191,17 @@ class PlaygroundWindow:
                     linePts = map(lambda x: x+10,linePts)
                     self.c.create_line(linePts,fill=color,tags="line",width=weight)
             elif type(c)==cluster_util.GroupBundle:
+                w = 1 + c.strongCertainty*3
                 if cycle == 4: cylce = 0
+                for o in range(len(c.hull)-1):
+                    lineseg = [c.hull[o].x,c.hull[o].y,c.hull[o+1].x,c.hull[o+1].y]
+                    self.c.create_line(lineseg,fill=colorList[cycle],tags="line",width=w)
+                self.c.create_line([c.hull[0].x,c.hull[0].y,c.hull[-1].x,c.hull[-1].y],fill=colorList[cycle],tags="line",width=w)
                 for o in range(len(c)):
                     linePts = self.c.coords(c[o])[0:2]
                     linePts = map(int,linePts)
                     linePts = map(lambda x: x+10,linePts)
-                    self.c.create_oval(linePts[0]-5,linePts[1]-5,linePts[0]+5,linePts[1]+5,fill=colorList[cycle],tags='line')
-#                    self.c.create_line(linePts,fill=blue,tags="line",width=weight)  
+                    self.c.create_oval(linePts[0]-5,linePts[1]-5,linePts[0]+5,linePts[1]+5,fill=colorList[cycle],tags='line')    
                 cycle += 1
             
             

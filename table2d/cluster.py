@@ -17,30 +17,34 @@ from planar import Vec2,BoundingBox
 import landmark
 
 
-def clusterCostWorker(data,objectDict,baseline):
+def clusterCostWorker(data,objectDict,maxDiscountRatio,strong=False):
+    #maxDiscountRatio is the maximum amount of the groups cost that can be deducted
+    #for membership in a group. Higher values will make groups more favorable compared
+    # to lines.
     output = []
     for i in data:
-        corePO = map(lambda x: objectDict.get(x),i)
-        coreHull = cluster_util.convex_hull(corePO)
-        area = sum(objectDict.get(p).bb_area() for p in i)
+        clusterMembers = map(lambda x: objectDict.get(x),i)
+        hullAroundMembers = cluster_util.convex_hull(clusterMembers)
+        areaOfMembers = sum(objectDict.get(p).bb_area() for p in i)
         try:
-            density = area/cluster_util.area(coreHull)
+            density = areaOfMembers/cluster_util.area(hullAroundMembers)
         except:
             density = 0
-        if density>=1: print "groups are too dense, things may be weird."
-        print density
-        cost = len(i)*(1-density) + baseline
+        if density>=1: density = 1
+        cost = len(i)*(1-density**2)*maxDiscountRatio + len(i)*(1-maxDiscountRatio)
         
-        corecluster=cluster_util.GroupBundle(i,cost)
+        corecluster=cluster_util.GroupBundle(i,cost,hullAroundMembers)
+        corecluster.density = density
+        corecluster.isStrong = strong
         output.append(corecluster)
     return output
-def clustercost(data,objectDict,baseline = 0.0001):
+def clustercost(data,objectDict):
     #    data is a tuple of two dictionaries: core cluster data first, then larger and more permissive clusters\
     # this func needs to return a unified list of possible clusters using both dictionaries in the style of the chain finder function
     # quick and dirty:
     
-    smallClusters = clusterCostWorker(data[0].values(),objectDict,baseline)
-    bigClusters =  clusterCostWorker(data[1].values(),objectDict,baseline)
+    smallClusters = clusterCostWorker(data[0].values(),objectDict, 0.2,1)
+    bigClusters =  clusterCostWorker(data[1].values(),objectDict, 0.1,0)
         
     return (smallClusters,bigClusters)
 

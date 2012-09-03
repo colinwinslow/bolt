@@ -43,8 +43,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     dbtimestart = time()
     clusterCandidates = clustercost(dbscan(inputObjectSet,distanceMatrix,objectDict),objectDict)
     dbtimestop = time()
-#    print "dbscan time: \t\t\t", dbtimestop-dbtimestart
-#    print 'clustercandidates',clusterCandidates
+    print "dbscan time: \t\t\t", dbtimestop-dbtimestart
     
     innerLines = []
     #search for lines inside large clusters
@@ -69,22 +68,13 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
                         reducedObjectSet.remove(x)
         ReducedDistanceMatrix = cluster_util.create_distance_matrix(reducedObjectSet)
         insideLineStop = time()
-#        print "inside linesearch time:\t\t",insideLineStop-insideLineStart
+        print "inside linesearch time:\t\t",insideLineStop-insideLineStart
         
     outsideLineStart = time()
     lineCandidates = findChains(reducedObjectSet,params)
     outsideLineStop = time()
     
-    
-
-#    for i in scene:
-#        groups.append(cluster_util.SingletonBundle([i[0]],1))
-
-#need to implement singletons intelligently. 
-
-
-
-#    print "general linesearch time:\t",outsideLineStop-outsideLineStart
+    print "general linesearch time:\t",outsideLineStop-outsideLineStart
     allCandidates = clusterCandidates[0]+clusterCandidates[1] + lineCandidates + innerLines
     allClusters = clusterCandidates[0]+clusterCandidates[1]
     allLines = lineCandidates + innerLines
@@ -93,36 +83,31 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
         groupDictionary[i.uuid]=i
     for i in inputObjectSet:
         groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.id],1,i.uuid)
-    bundleStart = time()
-    print params.allow_intersection
+    lineBundleStart = time()
     bestLines = bundleSearch(inputObjectSet, allLines, params.allow_intersection, params.beam_width)   
+    lineBundleStop = time()
+    print "linebundle time: \t\t", lineBundleStop-lineBundleStart
+    
+    clusterBundleStart = time()
     bestClusters = bundleSearch(inputObjectSet, allClusters, params.allow_intersection, params.beam_width) 
+    print params.allow_intersection
+    clusterBundleStop = time()
+    print "clusterbundle time: \t\t", clusterBundleStop-clusterBundleStart
+    bundleStart = time()
     evali = [] 
     try:
          evali = evali + bestLines
-         print "there are", len(bestLines), "line groups."
     except: print "there aren't any lines."
     try:
          evali = evali + bestClusters
-         print "there are", len(bestClusters), "cluster groups."
     except: print "there aren't any clusterss."
-    bundleStop = time()
-#    print "bundlesearch time: \t\t",bundleStop-bundleStart
-    #find the things in evali that aren't in the dictionary ,and make a singleton group out of them, and add it to the output
-
-    #what the heck am i doing here?
-#    physicalobjects = []
-#
-#    for i in evali:
-#        try:
-#            physicalobjects.append(groupDictionary.get(i))
-#        except:
-#            print "not in dictionary"
+    
+    
     output = map(lambda x: groupDictionary.get(x),evali)
-
-#    print 'costs', map(lambda x: x.cost,output)
+    bundleStop = time()
     for i in output:
-        print i.bundleType, i.cost
+        print "\t",i.bundleType,"\t",i.cost,"\t",i.density,"\t",i.strongCertainty
+    print "bundlesearch cleanup time: \t",bundleStop-bundleStart
     return output
 
     
@@ -211,7 +196,7 @@ def distVarCost(a, b, c):
         return 0
     return np.abs(np.log2((1/abDist)*bcDist))
 
-def distCost(current,step,start,goal):
+def distCost(current,step,start,goal,distanceMatrix):
     '''prefers dense lines to sparse ones'''
     stepdist = cluster_util.findDistance(current, step)
     totaldist= cluster_util.findDistance(start, goal)
@@ -220,6 +205,8 @@ def distCost(current,step,start,goal):
 def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     global allow_intersection 
     allow_intersection = intersection
+    print intersection
+    print allow_intersection
     
 #    print "number of groups:",len(groups)
     expanded = 0
@@ -276,7 +263,7 @@ class Node:
             for p in points:
                 if self.state.id != p.id and finish.id!=p.id: 
                     aCost = angleCost(self.state.position,finish.position, self.state.position, p.position)
-                    dCost =distCost(self.state.position,p.position,start.position,finish.position)
+                    dCost =distCost(self.state.position,p.position,start.position,finish.position,distanceMatrix)
                     if aCost <= params.angle_limit and dCost < 1: # prevents it from choosing points that overshoot the target.
                         normA = params.anglevar_weight*(aCost/params.angle_limit)
                         distanceCost = dCost
@@ -290,7 +277,7 @@ class Node:
 #                    print self.parent.state.position,self.state.position,p.position,"--",vCost/params.chain_distance_limit
                     
                     aCost = oldAngleCost(self.parent.state.position,self.state.position,p.position)
-                    dCost = distCost(self.state.position,p.position,start.position,finish.position)
+                    dCost = distCost(self.state.position,p.position,start.position,finish.position,distanceMatrix)
 #                    print "dcost",dCost
                     if aCost <= params.angle_limit and dCost <= 1 and vCost/params.chain_distance_limit <= 1:
                         normV = params.distvar_weight*(vCost/params.chain_distance_limit)

@@ -22,6 +22,7 @@ class PhysicalObject:
         self.bbmax = bbmax
         if uuid == -1: self.uuid = uuid4()
         else: self.uuid = uuid
+        
         self.listOfFields = [self.id,self.position,self.bbmin,self.bbmax]
     def __iter__(self):
         for i in self.listOfFields:
@@ -67,16 +68,25 @@ def convex_hull(data):
     for p in polys:
         output = [i for i in p]
         points = points + output
-    return points
+    hullpoly = Polygon.convex_hull(points)
+    hullpoints = []
+    for p in hullpoly:
+        hullpoints.append(p)
+    return hullpoints
 
 
 
-def area(p):
-    return 0.5 * abs(sum(x0*y1 - x1*y0
-                         for ((x0, y0), (x1, y1)) in segments(p)))
+def area(points):
+    pivot = points[0]
+    a = 0
+    for i in range(len(points)-1):
+        s1 = findDistance(pivot,points[i])
+        s2 = findDistance(points[i],points[i+1])
+        s3 = findDistance(points[i+1],pivot)
+        s = 0.5 * ( s1 + s2 + s3)
+        a = a + np.sqrt(s * (s - s1) * (s - s2) * (s - s3))
+    return a
 
-def segments(p):
-    return zip(p, p[1:] + [p[0]])
     
         
 def convert_to_bboxes(data):
@@ -91,7 +101,7 @@ def findDistance(vector1,vector2):
     vector1 = np.array(vector1)
     vector2 = np.array(vector2)
     '''euclidian distance between 2 points'''
-    return np.round(math.sqrt(np.sum(np.square(vector2-vector1))),3) 
+    return np.sqrt(np.sum(np.square(vector2-vector1)))
 
 def findAngle(vector1, vector2):
     '''difference between two vectors, in radians'''
@@ -114,6 +124,9 @@ class Bundle(object):
         if uuid == -1:
             self.uuid = uuid4()
         else: self.uuid = uuid
+        self.hull = None
+        self.density = -1
+        self.strongCertainty = 0
     def __getitem__(self,item):
         return self.members[item]
     def __iter__(self):
@@ -138,9 +151,11 @@ class SingletonBundle(Bundle):
         return landmarkDict.get(self.uuid)
         
 class GroupBundle(Bundle):
-    def __init__(self,members,cost):
+    def __init__(self,members,cost,hull):
         self.bundleType='group'
         super(GroupBundle,self).__init__(members,cost)
+        self.hull=hull
+        
     def convert(self,landmarkDict):
         listOfLandmarksInGroup = [landmarkDict.get(member) for member in self.members]
         return landmark.GroupRectangleRepresentation(listOfLandmarksInGroup)
