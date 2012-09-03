@@ -14,29 +14,14 @@ def totuple(a):
     except TypeError:
         return a
     
-class PhysicalObject:
-    def __init__(self,id,position,bbmin,bbmax,uuid=-1):  
-        self.id = id
-        self.position = position
-        self.bbmin = bbmin
-        self.bbmax = bbmax
-        if uuid == -1: self.uuid = uuid4()
-        else: self.uuid = uuid
-        
-        self.listOfFields = [self.id,self.position,self.bbmin,self.bbmax]
-    def __iter__(self):
-        for i in self.listOfFields:
-            yield i
-        
 
 def bb_area(bb):
     return bb.height*bb.width
     
-#PhysicalObject = namedtuple('physicalObject', ['id', 'position', 'bbmin', 'bbmax'])  
 ClusterParams = namedtuple("ClusterParams",['chain_distance_limit', 'angle_limit', 'min_line_length',
                'anglevar_weight', 'distvar_weight','dist_weight',
                'allow_intersection','beam_width','attempt_dnc'])
-#GroupAttributes = namedtuple('groupAttributes',['cost','type','density'])
+
 
 class successorTuple:
     def __init__(self,cost,members,uuid):  

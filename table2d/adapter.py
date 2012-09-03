@@ -1,6 +1,5 @@
 from planar import Vec2, BoundingBox
 import numpy as np
-from cluster_util import PhysicalObject
 import SceneEval
 import landmark
 
@@ -8,23 +7,16 @@ import landmark
 objects = []
 def adapt(landmarks):
     '''takes a scene object and returns a list of lists of objects that form groups'''
-    landmarkDict = dict()
+    
+    
+    #working on eliminating the adapter
+    
+    bundles = SceneEval.sceneEval(landmarks)
 
+    landmarkDict = dict()
     for l in landmarks:
         landmarkDict[l.uuid]=l
-        o = PhysicalObject(l.uuid,
-                           np.array(l.representation.middle),
-                           np.array(l.representation.rect.min_point),
-                           np.array(l.representation.rect.max_point),
-                           l.uuid)
-        objects.append(o)
-        
-    bundles = SceneEval.sceneEval(landmarks)
-    print "bundles",bundles
-
-
-
     results = [bundle.convert(landmarkDict) for bundle in bundles]
-    print "results",results
+
     return  results
 

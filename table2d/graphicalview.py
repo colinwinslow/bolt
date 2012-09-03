@@ -4,7 +4,7 @@ import SceneEval
 import numpy as np
 import pickle
 import cluster_util
-from cluster_util import ClusterParams,PhysicalObject
+from cluster_util import ClusterParams
 import tkFileDialog
 
 
@@ -125,6 +125,7 @@ class PlaygroundWindow:
         self.c.delete("line")
         searchMe = []
         for o in self.c.find_all():
+            #this needs to create a landmark now
             searchMe.append(PhysicalObject(o,self.c.coords(o)[0:2],self.c.coords(o)[0:2],self.c.coords(o)[2:4]))
         results = SceneEval.sceneEval(searchMe,params)
         if len(results)>0:

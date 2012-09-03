@@ -115,11 +115,8 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
 
     
 
-def findChains(inputObjectSet, params, distanceMatrix = -1 ):
+def findChains(inputObjectSet, params):
     '''finds all the chains, then returns the ones that satisfy constraints, sorted from best to worst.'''
-
-    if distanceMatrix == -1:
-        distanceMatrix = cluster_util.create_distance_matrix(inputObjectSet)
 
     bestlines = []
     explored = set()
@@ -128,7 +125,7 @@ def findChains(inputObjectSet, params, distanceMatrix = -1 ):
     for pair in pairwise:
         start,finish = pair[0],pair[1]
         if frozenset([start.uuid,finish.uuid]) not in explored:
-            result = chainSearch(start, finish, inputObjectSet,params,distanceMatrix)
+            result = chainSearch(start, finish, inputObjectSet,params)
             if result != None: 
                 bestlines.append(result)
                 s = map(frozenset,cluster_util.find_pairs(result[0:len(result)-1]))
@@ -150,7 +147,7 @@ def findChains(inputObjectSet, params, distanceMatrix = -1 ):
     return output
     
             
-def chainSearch(start, finish, points, params, distanceMatrix):
+def chainSearch(start, finish, points, params):
     # Passing distancematrix in here to let us reuse it over and over for
     # calculating successor costs. Need to actually implement that, though. 
     node = Node(start, -1, [], 0,0)
@@ -164,7 +161,7 @@ def chainSearch(start, finish, points, params, distanceMatrix):
             path.insert(0, start.uuid)
             return path
         explored.add(node.state.uuid)
-        successors = node.getSuccessors(points,start,finish,params,distanceMatrix)
+        successors = node.getSuccessors(points,start,finish,params)
         for child in successors:
             if child.state.uuid not in explored and frontier.contains(child.state.uuid)==False:
                 frontier.push(child, child.cost)
@@ -199,7 +196,7 @@ def distVarCost(a, b, c):
         return 0
     return np.abs(np.log2((1/abDist)*bcDist))
 
-def distCost(current,step,start,goal,distanceMatrix):
+def distCost(current,step,start,goal):
     '''prefers dense lines to sparse ones'''
     stepdist = cluster_util.findDistance(current, step)
     totaldist= cluster_util.findDistance(start, goal)
@@ -257,7 +254,7 @@ class Node:
     def getState(self):
         return self.state
     
-    def getSuccessors(self, points,start,finish,params,distanceMatrix):
+    def getSuccessors(self, points,start,finish,params):
 #        print points
 #        print len(points)
         
@@ -266,7 +263,7 @@ class Node:
             for p in points:
                 if self.state.uuid != p.uuid and finish.uuid!=p.uuid: 
                     aCost = angleCost(self.state.representation.middle, finish.representation.middle, self.state.representation.middle, p.representation.middle)
-                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle,distanceMatrix)
+                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle)
                     if aCost <= params.angle_limit and dCost < 1: # prevents it from choosing points that overshoot the target.
                         normA = params.anglevar_weight*(aCost/params.angle_limit)
                         distanceCost = dCost
@@ -280,7 +277,7 @@ class Node:
 #                    print self.parent.state.representation.middle,self.state.representation.middle,p.representation.middle,"--",vCost/params.chain_distance_limit
                     
                     aCost = oldAngleCost(self.parent.state.representation.middle,self.state.representation.middle,p.representation.middle)
-                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle,distanceMatrix)
+                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle)
 #                    print "dcost",dCost
                     if aCost <= params.angle_limit and dCost <= 1 and vCost/params.chain_distance_limit <= 1:
                         normV = params.distvar_weight*(vCost/params.chain_distance_limit)
