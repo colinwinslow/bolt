@@ -27,10 +27,10 @@ class PhysicalObject:
     def __iter__(self):
         for i in self.listOfFields:
             yield i
-    def bb_area(self):
-        l = self.bbmax[0]-self.bbmin[0]
-        w = self.bbmax[1]-self.bbmin[1]
-        return l*w
+        
+
+def bb_area(bb):
+    return bb.height*bb.width
     
 #PhysicalObject = namedtuple('physicalObject', ['id', 'position', 'bbmin', 'bbmax'])  
 ClusterParams = namedtuple("ClusterParams",['chain_distance_limit', 'angle_limit', 'min_line_length',
@@ -60,7 +60,7 @@ def create_distance_matrix(data):
     return distance_array
 
 def convex_hull(data):
-    BoundingBoxes = convert_to_bboxes(data)
+    BoundingBoxes = [o.representation.rect for o in data]
     polys = []
     for b in BoundingBoxes:
         polys.append(b.to_polygon())

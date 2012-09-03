@@ -25,7 +25,7 @@ def clusterCostWorker(data,objectDict,maxDiscountRatio,strong=False):
     for i in data:
         clusterMembers = map(lambda x: objectDict.get(x),i)
         hullAroundMembers = cluster_util.convex_hull(clusterMembers)
-        areaOfMembers = sum(objectDict.get(p).bb_area() for p in i)
+        areaOfMembers = sum(cluster_util.bb_area(objectDict.get(p).representation.rect) for p in i)
         try:
             density = areaOfMembers/cluster_util.area(hullAroundMembers)
         except:
@@ -54,7 +54,8 @@ def clustercost(data,objectDict):
 def dbscan(data,distanceMatrix,objectDict):
 #    print "starting dbscan"
 #    print "dbscan input:", data
-    X,ids,bbmin,bbmax = zip(*data)
+    X = [o.uuid for o in data]
+#    X,ids,bbmin,bbmax = zip(*data)
     S = 1 - (distanceMatrix / np.max(distanceMatrix))
     db = DBSCAN(min_samples=4).fit(S)
     core_samples = db.core_sample_indices_

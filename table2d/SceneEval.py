@@ -82,7 +82,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     for i in allCandidates:
         groupDictionary[i.uuid]=i
     for i in inputObjectSet:
-        groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.id],1,i.uuid)
+        groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.uuid],1,i.uuid)
     lineBundleStart = time()
     bestLines = bundleSearch(inputObjectSet, allLines, params.allow_intersection, params.beam_width)   
     lineBundleStop = time()
@@ -95,12 +95,14 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     print "clusterbundle time: \t\t", clusterBundleStop-clusterBundleStart
     bundleStart = time()
     evali = [] 
+
     try:
          evali = evali + bestLines
     except: print "there aren't any lines."
     try:
          evali = evali + bestClusters
     except: print "there aren't any clusterss."
+    print "evali",evali
     
     
     output = map(lambda x: groupDictionary.get(x),evali)
@@ -108,6 +110,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     for i in output:
         print "\t",i.bundleType,"\t",i.cost,"\t",i.density,"\t",i.strongCertainty
     print "bundlesearch cleanup time: \t",bundleStop-bundleStart
+    print "output",output
     return output
 
     
@@ -121,10 +124,10 @@ def findChains(inputObjectSet, params, distanceMatrix = -1 ):
     bestlines = []
     explored = set()
     pairwise = cluster_util.find_pairs(inputObjectSet)
-    pairwise.sort(key=lambda p: cluster_util.findDistance(p[0].position, p[1].position),reverse=False)
+    pairwise.sort(key=lambda p: p[0].distance_to(p[1].representation),reverse=False)
     for pair in pairwise:
         start,finish = pair[0],pair[1]
-        if frozenset([start.id,finish.id]) not in explored:
+        if frozenset([start.uuid,finish.uuid]) not in explored:
             result = chainSearch(start, finish, inputObjectSet,params,distanceMatrix)
             if result != None: 
                 bestlines.append(result)
@@ -140,7 +143,7 @@ def findChains(inputObjectSet, params, distanceMatrix = -1 ):
             verybest.append(line)
     verybest.sort(key=lambda l: len(l),reverse=True)
     costs = map(lambda l: l.pop()+1.5,verybest)
-    data = np.array(map(lambda x: (x.position,x.id),inputObjectSet))
+    data = np.array(map(lambda x: (x.representation.middle,x.uuid),inputObjectSet))
     output = []
     for i in zip(costs,verybest):
         output.append(cluster_util.LineBundle(i[1],i[0]))
@@ -156,16 +159,16 @@ def chainSearch(start, finish, points, params, distanceMatrix):
     explored = set()
     while frontier.isEmpty() == False:
         node = frontier.pop()
-        if node.getState().id == finish.id:
+        if node.getState().uuid == finish.uuid:
             path = node.traceback()
-            path.insert(0, start.id)
+            path.insert(0, start.uuid)
             return path
-        explored.add(node.state.id)
+        explored.add(node.state.uuid)
         successors = node.getSuccessors(points,start,finish,params,distanceMatrix)
         for child in successors:
-            if child.state.id not in explored and frontier.contains(child.state.id)==False:
+            if child.state.uuid not in explored and frontier.contains(child.state.uuid)==False:
                 frontier.push(child, child.cost)
-            elif frontier.contains(child.state.id) and frontier.pathCost(child.state.id) > child.cost:
+            elif frontier.contains(child.state.uuid) and frontier.pathCost(child.state.uuid) > child.cost:
                 frontier.push(child,child.cost)     
         
 #cost functions
@@ -213,7 +216,7 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     singletonCost = 1
 
     for i in scene:
-        groups.append(cluster_util.SingletonBundle([i.id],singletonCost,i.uuid))
+        groups.append(cluster_util.SingletonBundle([i.uuid],singletonCost,i.uuid))
         
     node = BNode(frozenset(), -1, [], 0)
     frontier = BundlePQ()
@@ -222,7 +225,7 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     while frontier.isEmpty() == False:
         node = frontier.pop()
         expanded += 1
-        if node.getState() >= frozenset(map(lambda x:x.id,scene)):
+        if node.getState() >= frozenset(map(lambda x:x.uuid,scene)):
             path = node.traceback()
             return path
         explored.add(node.state)
@@ -261,29 +264,29 @@ class Node:
         out = []
         if self.parent == -1: 
             for p in points:
-                if self.state.id != p.id and finish.id!=p.id: 
-                    aCost = angleCost(self.state.position,finish.position, self.state.position, p.position)
-                    dCost =distCost(self.state.position,p.position,start.position,finish.position,distanceMatrix)
+                if self.state.uuid != p.uuid and finish.uuid!=p.uuid: 
+                    aCost = angleCost(self.state.representation.middle, finish.representation.middle, self.state.representation.middle, p.representation.middle)
+                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle,distanceMatrix)
                     if aCost <= params.angle_limit and dCost < 1: # prevents it from choosing points that overshoot the target.
                         normA = params.anglevar_weight*(aCost/params.angle_limit)
                         distanceCost = dCost
                         qualityCost = normA/params.anglevar_weight
-                        out.append(Node(p,self,p.id, distanceCost,qualityCost))
+                        out.append(Node(p,self,p.uuid, distanceCost,qualityCost))
         else:
             out = []
             for p in points:
-                if self.state.id != p.id: 
-                    vCost = distVarCost(self.parent.state.position, self.state.position, p.position)
-#                    print self.parent.state.position,self.state.position,p.position,"--",vCost/params.chain_distance_limit
+                if self.state.uuid != p.uuid: 
+                    vCost = distVarCost(self.parent.state.representation.middle, self.state.representation.middle, p.representation.middle)
+#                    print self.parent.state.representation.middle,self.state.representation.middle,p.representation.middle,"--",vCost/params.chain_distance_limit
                     
-                    aCost = oldAngleCost(self.parent.state.position,self.state.position,p.position)
-                    dCost = distCost(self.state.position,p.position,start.position,finish.position,distanceMatrix)
+                    aCost = oldAngleCost(self.parent.state.representation.middle,self.state.representation.middle,p.representation.middle)
+                    dCost = distCost(self.state.representation.middle,p.representation.middle,start.representation.middle,finish.representation.middle,distanceMatrix)
 #                    print "dcost",dCost
                     if aCost <= params.angle_limit and dCost <= 1 and vCost/params.chain_distance_limit <= 1:
                         normV = params.distvar_weight*(vCost/params.chain_distance_limit)
                         normA = params.anglevar_weight*(aCost/params.angle_limit)
                         qualityCost = (normA+normV)/(params.distvar_weight+params.anglevar_weight)
-                        out.append(Node(p,self,p.id,dCost,qualityCost))
+                        out.append(Node(p,self,p.uuid,dCost,qualityCost))
         
         return out
 
@@ -356,7 +359,7 @@ class PriorityQueue:
     def push(self, item, priority):
         pair = (priority, item)
         heapq.heappush(self.heap, pair)
-        self.dict[item.state.id]=priority
+        self.dict[item.state.uuid]=priority
     
     def contains(self,item):
         return self.dict.has_key(item)
