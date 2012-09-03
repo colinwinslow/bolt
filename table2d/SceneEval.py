@@ -38,7 +38,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     reducedObjectSet = copy(inputObjectSet)
     objectDict = dict()
     for i in inputObjectSet:
-        objectDict[i.id]=i
+        objectDict[i.uuid]=i
     distanceMatrix = cluster_util.create_distance_matrix(inputObjectSet)
     dbtimestart = time()
     clusterCandidates = clustercost(dbscan(inputObjectSet,distanceMatrix,objectDict),objectDict)

@@ -19,7 +19,7 @@ def adapt(landmarks):
                            l.uuid)
         objects.append(o)
         
-    bundles = SceneEval.sceneEval(objects)
+    bundles = SceneEval.sceneEval(landmarks)
 
 
 

@@ -50,7 +50,7 @@ class successorTuple:
     
     
 def create_distance_matrix(data):
-    BoundingBoxes = convert_to_bboxes(data)
+    BoundingBoxes = [o.representation.rect for o in data]
     distance_array=[]
     for i in BoundingBoxes:
         row = []
