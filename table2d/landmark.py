@@ -155,7 +155,7 @@ class Landmark(object):
         self.uuid = uuid4()
         self.ori_relations = set()
         
-        ##should get rid of these eventually
+        ##shou
         self.members = [self.uuid]
         self.cost = 1
 

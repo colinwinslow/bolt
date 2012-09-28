@@ -13,7 +13,7 @@ from landmark import (GroupLineRepresentation,
                       Color)
 from random import random
 import pickle
-import adapter
+import SceneEval
 
 def construct_training_scene():
     speaker = Speaker(Vec2(0,0))
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     scene, speaker = construct_training_scene()
     
     lmks = [lmk for lmk in scene.landmarks.values() if not lmk.name == 'table']
-    groups = adapter.adapt(lmks)
+    groups = SceneEval.sceneEval(lmks)
     
     for i,g in enumerate(groups):
         try: scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))

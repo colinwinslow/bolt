@@ -326,7 +326,8 @@ class BNode:
         successors = []
 
         for g in groups:
-            memtup = cluster_util.totuple(g.members)
+            memtup = g.members
+            print 'memtup',memtup
 
             if len(self.state.intersection(memtup))<=allow_intersection:
                 asd=BNode(self.state.union(memtup),self,g.uuid,g.cost)

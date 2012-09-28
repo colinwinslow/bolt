@@ -101,24 +101,24 @@ def find_pairs(l):
             pairs.append((l[i], l[j]))
     return pairs
 
-class Bundle(object):
-    def __init__(self,members,cost,uuid=-1):
-        self.members = members
-        self.cost = cost
-        self.cardinality = len(members)
-        if uuid == -1:
-            self.uuid = uuid4()
-        else: self.uuid = uuid
-        self.hull = None
-        self.density = -1
-        self.strongCertainty = 0
-    def __getitem__(self,item):
-        return self.members[item]
-    def __iter__(self):
-        for i in self.members:
-            yield i
-    def __len__(self):
-        return len(self.members)
+#class Bundle(object):
+#    def __init__(self,members,cost,uuid=-1):
+#        self.members = members
+#        self.cost = cost
+#        self.cardinality = len(members)
+#        if uuid == -1:
+#            self.uuid = uuid4()
+#        else: self.uuid = uuid
+#        self.hull = None
+#        self.density = -1
+#        self.strongCertainty = 0
+#    def __getitem__(self,item):
+#        return self.members[item]
+#    def __iter__(self):
+#        for i in self.members:
+#            yield i
+#    def __len__(self):
+#        return len(self.members)
         
 #class LineBundle(Bundle):
 #    def __init__(self,members,cost):
