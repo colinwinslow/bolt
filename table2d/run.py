@@ -69,8 +69,8 @@ if __name__ == '__main__':
     groups = SceneEval.sceneEval(lmks)
     
     for i,g in enumerate(groups):
-        try: scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
-        except: print "this error is happening because of singletonbundles mixed in with the lines. Will fix soon!"
+        scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
+#        except: print "this error is happening because of singletonbundles mixed in with the lines. Will fix soon!"
     #perspectives = [ Vec2(5.5,4.5), Vec2(6.5,6.0)]
     #speaker.talk_to_baby(scene, perspectives, how_many_each=10)
 

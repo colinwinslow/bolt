@@ -156,7 +156,7 @@ class Landmark(object):
         self.ori_relations = set()
         
         ##shou
-        self.members = [self.uuid]
+        self.members = [self]
         self.cost = 1
 
         self.representation.parent_landmark = self

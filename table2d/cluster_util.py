@@ -7,12 +7,12 @@ from planar import BoundingBox,Vec2,Polygon
 import landmark
 
 
-def totuple(a):
-    '''converts nested iterables into tuples'''
-    try:
-        return tuple(totuple(i) for i in a)
-    except TypeError:
-        return a
+#def totuple(a):
+#    '''converts nested iterables into tuples'''
+#    try:
+#        return tuple(totuple(i) for i in a)
+#    except TypeError:
+#        return a
     
 
 def bb_area(bb):

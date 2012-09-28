@@ -15,13 +15,7 @@ import landmark
 #vacuous comment for git practice
 
 
-def main():
-    print "Sample run of line detecton on Blockworld: \n"
-    np.seterr(all='raise')
-    print "scene 14, step 8"
-    result = findChains(util.get_objects(14, 8))
-    print result
-    print  "cost: ", np.round(result[-1],4),"\t",map(util.lookup_objects,result[:-1])
+
         
         
 
@@ -143,8 +137,6 @@ def findChains(inputObjectSet, params,objectDict):
     data = np.array(map(lambda x: (x.representation.middle,x.uuid),inputObjectSet))
     output = []
     for i in zip(costs,verybest):
-        print i
-        print "----",i[1],i[0]
         output.append(landmark.GroupLineRepresentation([objectDict.get(j) for j in i[1]],i[0]))
     return output
     
@@ -205,8 +197,13 @@ def distCost(current,step,start,goal):
     return stepdist**2/totaldist**2
 
 def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
+    bgroups = groups
     global allow_intersection 
     allow_intersection = intersection
+    for i in scene:
+        bgroups.append(i)
+    
+    print "bundlesearch candidate groups",bgroups
     print intersection
     print allow_intersection
     
@@ -214,9 +211,7 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     expanded = 0
     singletonCost = 1
 
-    for i in scene:
-        groups.append(i)
-        
+
     node = BNode(frozenset(), -1, [], 0)
     frontier = BundlePQ()
     frontier.push(node, 0)
@@ -224,18 +219,20 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     while frontier.isEmpty() == False:
         node = frontier.pop()
         expanded += 1
-        if node.getState() >= frozenset(map(lambda x:x.uuid,scene)):
+        if node.getState() >= frozenset(scene):
             path = node.traceback()
             return path
         explored.add(node.state)
-        successors = node.getSuccessors(scene,groups)
+        successors = node.getSuccessors(scene,bgroups)
         successors.sort(key= lambda s: s.gainratio,reverse=True)
         successors = successors[0:beamwidth]
         for child in successors:
+
             if child.state not in explored and frontier.contains(child.state)==False:
                 frontier.push(child, child.cost)
+
             elif frontier.contains(child.state) and frontier.pathCost(child.state) > child.cost:
-                
+
                 frontier.push(child,child.cost)
 
     
@@ -327,12 +324,13 @@ class BNode:
 
         for g in groups:
             memtup = g.members
-            print 'memtup',memtup
 
             if len(self.state.intersection(memtup))<=allow_intersection:
                 asd=BNode(self.state.union(memtup),self,g.uuid,g.cost)
-                if asd.gain > 0:
-                    successors.append(asd)
+                successors.append(asd)
+#                if asd.gain > 0:
+#                    successors.append(asd)
+
         return successors
         
 
@@ -399,4 +397,3 @@ class BundlePQ:
         return len(self.heap) == 0
 
 
-if __name__ == '__main__': main()
