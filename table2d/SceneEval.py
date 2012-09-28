@@ -10,6 +10,7 @@ import heapq
 from cluster import dbscan,clustercost
 from copy import copy
 from time import time
+import landmark
 
 #vacuous comment for git practice
 
@@ -35,6 +36,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     concatenate the lists of clusters and lines
     evaluate the whole thing with bundle search
     '''
+    print "*",inputObjectSet
     reducedObjectSet = copy(inputObjectSet)
     objectDict = dict()
     for i in inputObjectSet:
@@ -71,7 +73,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
         print "inside linesearch time:\t\t",insideLineStop-insideLineStart
         
     outsideLineStart = time()
-    lineCandidates = findChains(reducedObjectSet,params)
+    lineCandidates = findChains(reducedObjectSet,params,objectDict)
     outsideLineStop = time()
     
     print "general linesearch time:\t",outsideLineStop-outsideLineStart
@@ -82,7 +84,7 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     for i in allCandidates:
         groupDictionary[i.uuid]=i
     for i in inputObjectSet:
-        groupDictionary[i.uuid]=cluster_util.SingletonBundle([i.uuid],1,i.uuid)
+        groupDictionary[i.uuid]=i
     lineBundleStart = time()
     bestLines = bundleSearch(inputObjectSet, allLines, params.allow_intersection, params.beam_width)   
     lineBundleStop = time()
@@ -107,15 +109,13 @@ def sceneEval(inputObjectSet,params = ClusterParams(2,0.9,3,0.05,0.1,1,1,11,Fals
     
     output = map(lambda x: groupDictionary.get(x),evali)
     bundleStop = time()
-    for i in output:
-        print "\t",i.bundleType,"\t",i.cost,"\t",i.density,"\t",i.strongCertainty
     print "bundlesearch cleanup time: \t",bundleStop-bundleStart
     print "output",output
     return output
 
     
 
-def findChains(inputObjectSet, params):
+def findChains(inputObjectSet, params,objectDict):
     '''finds all the chains, then returns the ones that satisfy constraints, sorted from best to worst.'''
 
     bestlines = []
@@ -143,7 +143,9 @@ def findChains(inputObjectSet, params):
     data = np.array(map(lambda x: (x.representation.middle,x.uuid),inputObjectSet))
     output = []
     for i in zip(costs,verybest):
-        output.append(cluster_util.LineBundle(i[1],i[0]))
+        print i
+        print "----",i[1],i[0]
+        output.append(landmark.GroupLineRepresentation([objectDict.get(j) for j in i[1]],i[0]))
     return output
     
             
@@ -213,7 +215,7 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     singletonCost = 1
 
     for i in scene:
-        groups.append(cluster_util.SingletonBundle([i.uuid],singletonCost,i.uuid))
+        groups.append(i)
         
     node = BNode(frozenset(), -1, [], 0)
     frontier = BundlePQ()

@@ -154,6 +154,10 @@ class Landmark(object):
         self.color = color
         self.uuid = uuid4()
         self.ori_relations = set()
+        
+        ##should get rid of these eventually
+        self.members = [self.uuid]
+        self.cost = 1
 
         self.representation.parent_landmark = self
         for alt_repr in representation.get_alt_representations():
@@ -598,7 +602,9 @@ class SurfaceRepresentation(RectangleRepresentation):
 
 
 class GroupLineRepresentation(LineRepresentation):
-    def __init__(self, lmk_group, alt_of=None):
+    def __init__(self, lmk_group, cost, alt_of=None):
+        self.members = lmk_group
+        self.cost = cost
         centers = np.array([lmk.representation.middle for lmk in lmk_group])
         x = centers[:,0]
         y = centers[:,1]
@@ -614,7 +620,9 @@ class GroupLineRepresentation(LineRepresentation):
 
 
 class GroupRectangleRepresentation(RectangleRepresentation):
-    def __init__(self, lmk_group, alt_of=None):
+    def __init__(self, lmk_group, alt_of=None, cost=None):
+        self.members = lmk_group
+        self.cost = cost
         shapes = [lmk.representation.get_geometry() for lmk in lmk_group]
         super(GroupRectangleRepresentation, self).__init__(rect=BoundingBox.from_shapes(shapes),
                                                            landmarks_to_get=['middle'],

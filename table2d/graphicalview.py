@@ -6,6 +6,19 @@ import pickle
 import cluster_util
 from cluster_util import ClusterParams
 import tkFileDialog
+from planar import Vec2
+from planar import BoundingBox
+from planar import Polygon
+from landmark import (GroupLineRepresentation,
+                      PointRepresentation,
+                      RectangleRepresentation,
+                      Circle,
+                      CircleRepresentation,
+                      SurfaceRepresentation,
+                      Scene,
+                      Landmark,
+                      ObjectClass,
+                      Color)
 
 
 
@@ -126,7 +139,12 @@ class PlaygroundWindow:
         searchMe = []
         for o in self.c.find_all():
             #this needs to create a landmark now
-            searchMe.append(PhysicalObject(o,self.c.coords(o)[0:2],self.c.coords(o)[0:2],self.c.coords(o)[2:4]))
+            searchMe.append(Landmark('purple_prism',
+                    RectangleRepresentation(rect=BoundingBox([Vec2(self.c.coords(o)[0],self.c.coords(o)[1]), Vec2(self.c.coords(o)[2],self.c.coords(o)[3])]), landmarks_to_get=[]),
+                    None,
+                    ObjectClass.PRISM,
+                    Color.PURPLE))
+        print searchMe
         results = SceneEval.sceneEval(searchMe,params)
         if len(results)>0:
             self.chainViz(results)
@@ -199,6 +217,7 @@ class PlaygroundWindow:
                     self.c.create_line(lineseg,fill=colorList[cycle],tags="line",width=w)
                 self.c.create_line([c.hull[0].x,c.hull[0].y,c.hull[-1].x,c.hull[-1].y],fill=colorList[cycle],tags="line",width=w)
                 for o in range(len(c)):
+                    print c[o]
                     linePts = self.c.coords(c[o])[0:2]
                     linePts = map(int,linePts)
                     linePts = map(lambda x: x+10,linePts)

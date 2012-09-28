@@ -16,6 +16,6 @@ def adapt(landmarks):
     landmarkDict = dict()
     for l in landmarks:
         landmarkDict[l.uuid]=l
-    results = [bundle.convert(landmarkDict) for bundle in bundles]
+    
 
-    return  results
+    return  bundles

@@ -33,7 +33,9 @@ def clusterCostWorker(data,objectDict,maxDiscountRatio,strong=False):
         if density>=1: density = 1
         cost = len(i)*(1-density**2)*maxDiscountRatio + len(i)*(1-maxDiscountRatio)
         
-        corecluster=cluster_util.GroupBundle(i,cost,hullAroundMembers)
+#        corecluster=cluster_util.GroupBundle(i,cost,hullAroundMembers)
+ 
+        corecluster=landmark.GroupRectangleRepresentation([objectDict.get(j) for j in i],None,cost)
         corecluster.density = density
         corecluster.isStrong = strong
         output.append(corecluster)
