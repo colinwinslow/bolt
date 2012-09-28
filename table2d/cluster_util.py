@@ -16,15 +16,7 @@ ClusterParams = namedtuple("ClusterParams",['chain_distance_limit', 'angle_limit
                'allow_intersection','beam_width','attempt_dnc'])
 
 
-#class successorTuple:
-#    def __init__(self,cost,members,uuid):  
-#        self.cost=cost
-#        self.members = members
-#        self.uuid = uuid
-#        self.listOfFields = [self.cost,self.members,self.uuid]
-#    def __iter__(self):
-#        for i in self.listOfFields:
-#            yield i
+
     
     
 def create_distance_matrix(data):
