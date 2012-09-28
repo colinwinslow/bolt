@@ -54,10 +54,7 @@ def clustercost(data,objectDict):
 
 
 def dbscan(data,distanceMatrix,objectDict):
-#    print "starting dbscan"
-#    print "dbscan input:", data
     X = [o.uuid for o in data]
-#    X,ids,bbmin,bbmax = zip(*data)
     S = 1 - (distanceMatrix / np.max(distanceMatrix))
     db = DBSCAN(min_samples=4).fit(S)
     core_samples = db.core_sample_indices_

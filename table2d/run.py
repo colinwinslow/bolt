@@ -53,10 +53,15 @@ def construct_training_scene():
                     None,
                     ObjectClass.PRISM,
                     Color.ORANGE)
+    obj6 = Landmark('narrow_prism',
+                    RectangleRepresentation(rect=BoundingBox([Vec2(0.2-0.04,0.5-0.02), Vec2(0.4+0.03,0.4+0.03)]), landmarks_to_get=[]),
+                    None,
+                    ObjectClass.PRISM,
+                    Color.ORANGE)
 
     scene.add_landmark(table)
 
-    for obj in (obj1, obj2, obj3, obj4, obj5):
+    for obj in (obj1, obj2, obj3, obj4, obj5,obj6):
         obj.representation.alt_representations = []
         scene.add_landmark(obj)
 
@@ -67,10 +72,11 @@ if __name__ == '__main__':
     
     lmks = [lmk for lmk in scene.landmarks.values() if not lmk.name == 'table']
     groups = SceneEval.sceneEval(lmks)
+    print groups
     
     for i,g in enumerate(groups):
-        scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
-#        except: print "this error is happening because of singletonbundles mixed in with the lines. Will fix soon!"
+        try: scene.add_landmark(Landmark('ol%d'%i, g, None, Landmark.LINE))
+        except: scene.add_landmark(Landmark('ol%d'%i, g.representation, None, Landmark.LINE))
     #perspectives = [ Vec2(5.5,4.5), Vec2(6.5,6.0)]
     #speaker.talk_to_baby(scene, perspectives, how_many_each=10)
 

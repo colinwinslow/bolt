@@ -6,13 +6,6 @@ import math
 from planar import BoundingBox,Vec2,Polygon
 import landmark
 
-
-#def totuple(a):
-#    '''converts nested iterables into tuples'''
-#    try:
-#        return tuple(totuple(i) for i in a)
-#    except TypeError:
-#        return a
     
 
 def bb_area(bb):
@@ -23,15 +16,15 @@ ClusterParams = namedtuple("ClusterParams",['chain_distance_limit', 'angle_limit
                'allow_intersection','beam_width','attempt_dnc'])
 
 
-class successorTuple:
-    def __init__(self,cost,members,uuid):  
-        self.cost=cost
-        self.members = members
-        self.uuid = uuid
-        self.listOfFields = [self.cost,self.members,self.uuid]
-    def __iter__(self):
-        for i in self.listOfFields:
-            yield i
+#class successorTuple:
+#    def __init__(self,cost,members,uuid):  
+#        self.cost=cost
+#        self.members = members
+#        self.uuid = uuid
+#        self.listOfFields = [self.cost,self.members,self.uuid]
+#    def __iter__(self):
+#        for i in self.listOfFields:
+#            yield i
     
     
 def create_distance_matrix(data):
@@ -100,47 +93,3 @@ def find_pairs(l):
         for j in range(len(l))[i + 1:]:
             pairs.append((l[i], l[j]))
     return pairs
-
-#class Bundle(object):
-#    def __init__(self,members,cost,uuid=-1):
-#        self.members = members
-#        self.cost = cost
-#        self.cardinality = len(members)
-#        if uuid == -1:
-#            self.uuid = uuid4()
-#        else: self.uuid = uuid
-#        self.hull = None
-#        self.density = -1
-#        self.strongCertainty = 0
-#    def __getitem__(self,item):
-#        return self.members[item]
-#    def __iter__(self):
-#        for i in self.members:
-#            yield i
-#    def __len__(self):
-#        return len(self.members)
-        
-#class LineBundle(Bundle):
-#    def __init__(self,members,cost):
-#        self.bundleType='line'
-#        super(LineBundle,self).__init__(members,cost)
-#    def convert(self,landmarkDict):
-#        listOfLandmarksInGroup = [landmarkDict.get(member) for member in self.members]
-#        return landmark.GroupLineRepresentation(listOfLandmarksInGroup)
-        
-#class SingletonBundle(Bundle):
-#    def __init__(self,members,cost,uuid):
-#        self.bundleType='singleton'
-#        super(SingletonBundle,self).__init__(members,cost,uuid)
-#    def convert(self,landmarkDict):
-#        return landmarkDict.get(self.uuid)
-        
-#class GroupBundle(Bundle):
-#    def __init__(self,members,cost,hull):
-#        self.bundleType='group'
-#        super(GroupBundle,self).__init__(members,cost)
-#        self.hull=hull
-#        
-#    def convert(self,landmarkDict):
-#        listOfLandmarksInGroup = [landmarkDict.get(member) for member in self.members]
-#        return landmark.GroupRectangleRepresentation(listOfLandmarksInGroup)

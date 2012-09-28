@@ -203,9 +203,6 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
     for i in scene:
         bgroups.append(i)
     
-    print "bundlesearch candidate groups",bgroups
-    print intersection
-    print allow_intersection
     
 #    print "number of groups:",len(groups)
     expanded = 0
@@ -232,7 +229,7 @@ def bundleSearch(scene, groups, intersection = 0,beamwidth=10):
                 frontier.push(child, child.cost)
 
             elif frontier.contains(child.state) and frontier.pathCost(child.state) > child.cost:
-
+                print "cheaper"
                 frontier.push(child,child.cost)
 
     
